@@ -103,7 +103,7 @@ void Renderer::Init(HWND hWnd, int& width, int& height, bool fullScreen)
 	m_orthomatrix = XMMatrixOrthographicLH(width, height, 0.1f , 1000.0f);
 
 
-	shader = new ColorShader();
+	shader = new Shader();
 	if (!shader->Initialize(device, hWnd))
 	{
 		MessageBox(hWnd, L"Could not initialise Color Shader", L"ERROR", MB_OK | MB_ICONERROR);
@@ -123,7 +123,7 @@ void Renderer::Render(CameraComponent* camera, std::vector<MeshComponent*>& mesh
 		currMesh->Render(context);
 
 		bool result = shader->Render(context, currMesh->GetIndexCount(), currMesh->GetRotationMatrix(), currMesh->GetTranslationMatrix(), worldMatrix,
-			*camera->GetViewMatrix(), m_projectionMatrix);
+			*camera->GetViewMatrix(), m_projectionMatrix, currMesh->GetTexture());
 		if (!result)
 		{
 			MessageBox(Window::MainWindow(), L"Failed to render with shader!", L"ERROR", MB_ICONERROR | MB_OK);

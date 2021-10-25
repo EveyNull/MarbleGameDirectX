@@ -1,23 +1,5 @@
 #include "MeshComponent.h"
 
-void MeshComponent::MakeTriangle(ID3D11Device* device)
-{
-	VertexConfig* vertices = new VertexConfig[3];
-	vertices[0].position = { -1.0f, 1.0f, 0.0f };
-	vertices[0].color = { 1.0f, 0.0f, 0.0f, 1.0f };
-
-	vertices[1].position = { 1.0f, 1.0f, 0.0f };
-	vertices[1].color = { 0.0f, 1.0f, 0.0f, 1.0f };
-
-	vertices[2].position = { 1.0f, 0.0f, 0.0f };
-	vertices[2].color = { 0.0f, 0.0f, 1.0f, 1.0f };
-
-	InitBuffers(device, vertices, 3);
-
-	delete[] vertices;
-	vertices = nullptr;
-}
-
 void MeshComponent::MakeCube(ID3D11Device* device)
 {
 
@@ -69,8 +51,8 @@ void MeshComponent::MakeCube(ID3D11Device* device)
 		vertices[i].position.y = cube_data[i * 3 + 1];
 		vertices[i].position.z = cube_data[i * 3 + 2];
 		
-		int rem = i % 3;
-		switch (rem)
+		int trianglepoint = i % 3;
+		switch (trianglepoint)
 		{
 		case 0:
 			vertices[i].color = { 1.0f, 0.0f, 0.0f, 1.0f };
@@ -80,8 +62,14 @@ void MeshComponent::MakeCube(ID3D11Device* device)
 			break;
 		case 2:
 			vertices[i].color = { 0.0f, 0.0f, 1.0f, 1.0f };
+			break;
 		}
 	}
+	vertices[0].textureUV = { 0.0f, 0.0f };
+	vertices[1].textureUV = { 0.0f, 1.0f };
+	vertices[2].textureUV = { 1.0f, 0.0f };
+
+	LoadTexture(device, L"TestTexture.gif");
 
 	InitBuffers(device, vertices, 36);
 
@@ -113,11 +101,27 @@ MeshComponent::~MeshComponent()
 	{
 		vertexBuffer->Release();
 	}
+
+	if (texture)
+	{
+		delete texture;
+	}
 }
 
 int MeshComponent::GetIndexCount()
 {
 	return indexCount;
+}
+
+ID3D11ShaderResourceView* MeshComponent::GetTexture()
+{
+	return texture->GetTexture();
+}
+
+void MeshComponent::LoadTexture(ID3D11Device* device, const wchar_t* fileName)
+{
+	texture = new Texture();
+	texture->InitTexture(device, fileName);
 }
 
 bool MeshComponent::InitBuffers(ID3D11Device* device, VertexConfig* vertices, int vertexCount)

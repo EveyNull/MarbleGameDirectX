@@ -11,7 +11,7 @@
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")
 
-#include "ColorShader.h"
+#include "Shader.h"
 
 using namespace DirectX;	
 
@@ -28,7 +28,7 @@ public:
 
 private:
 	static Renderer* instance;
-	ColorShader* shader;
+	Shader* shader;
 
 	IDXGISwapChain* swapChain;
 	ID3D11Device* device;

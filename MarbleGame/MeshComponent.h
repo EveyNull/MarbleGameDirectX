@@ -3,6 +3,7 @@
 #ifndef MESHCOMPONENT_H
 #define MESHCOMPONENT_H
 
+#include "Texture.h"
 #include "VertexConfig.h"
 
 #include <d3d11.h>
@@ -15,12 +16,14 @@ class MeshComponent
 public:
 	MeshComponent(HWND& hWnd);
 	~MeshComponent();
-	void MakeTriangle(ID3D11Device* device);
 	void MakeCube(ID3D11Device* device);
 	void Render(ID3D11DeviceContext*);
 
 	void TranslateMesh(VECTOR3 position);
 	void RotateMesh(VECTOR3 rotation);
+
+	void LoadTexture(ID3D11Device*, const wchar_t*);
+	ID3D11ShaderResourceView* GetTexture();
 
 	XMMATRIX GetRotationMatrix();
 	XMMATRIX GetTranslationMatrix();
@@ -38,6 +41,9 @@ private:
 
 	ID3D11Buffer* vertexBuffer;
 	ID3D11Buffer* indexBuffer;
+
+	Texture* texture;
+
 	int vertexCount, indexCount;
 };
 
