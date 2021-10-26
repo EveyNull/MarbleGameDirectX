@@ -31,6 +31,11 @@ private:
 	Shader* shader;
 
 	IDXGISwapChain* swapChain;
+	ID3D11RasterizerState* rasterizer;
+
+	ID3D11DepthStencilView* depthStencilView;
+	ID3D11Texture2D* depthStencilBuffer;
+
 	ID3D11Device* device;
 	ID3D11DeviceContext* context;
 	ID3D11RenderTargetView* backBuffer;

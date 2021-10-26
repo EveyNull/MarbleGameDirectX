@@ -2,14 +2,12 @@
 
 Texture::~Texture()
 {
-	texture->Release();
 	textureView->Release();
 }
 
 void Texture::InitTexture(ID3D11Device* device, const wchar_t* fileName)
 {
-	size_t maxSize = 2048;
-	HRESULT result = CreateWICTextureFromFile(device, fileName, &texture, &textureView, maxSize);
+	HRESULT result = CreateWICTextureFromFile(device, fileName, NULL, &textureView);
 	if (FAILED(result))
 	{
 		return;

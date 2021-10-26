@@ -66,8 +66,52 @@ void Renderer::Init(HWND hWnd, int& width, int& height, bool fullScreen)
 		&context
 	);
 
+
+	D3D11_RASTERIZER_DESC rasterDesc;
+	rasterDesc.AntialiasedLineEnable = false;
+	rasterDesc.CullMode = D3D11_CULL_NONE;
+	rasterDesc.DepthBias = 0;
+	rasterDesc.DepthBiasClamp = 0.0f;
+	rasterDesc.DepthClipEnable = true;
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
+	rasterDesc.FrontCounterClockwise = false;
+	rasterDesc.MultisampleEnable = false;
+	rasterDesc.ScissorEnable = false;
+	rasterDesc.SlopeScaledDepthBias = 0.0f;
+	
+	HRESULT result = device->CreateRasterizerState(&rasterDesc, &rasterizer);
+	if (FAILED(result))
+	{
+		MessageBox(Window::MainWindow(), L"Failed to initialise rasterizer state", L"ERROR", MB_ICONERROR | MB_OK);
+		return;
+	}
+
+	context->RSSetState(rasterizer);
+
+	D3D11_TEXTURE2D_DESC depthStencilDesc;
+	depthStencilDesc.Width = width;
+	depthStencilDesc.Height = height;
+	depthStencilDesc.MipLevels = 1;
+	depthStencilDesc.ArraySize = 1;
+	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilDesc.SampleDesc.Count = 1;
+	depthStencilDesc.SampleDesc.Quality = 0;
+	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthStencilDesc.CPUAccessFlags = 0;
+	depthStencilDesc.MiscFlags = 0;
+
+	result = device->CreateTexture2D(&depthStencilDesc, NULL, &depthStencilBuffer);
+	if (FAILED(result))
+	{
+		MessageBox(Window::MainWindow(), L"Failed to initialise depth buffer", L"ERROR", MB_ICONERROR | MB_OK);
+		return;
+	}
+	device->CreateDepthStencilView(depthStencilBuffer, NULL, &depthStencilView);
+
+
 	ID3D11Texture2D* pBackBuffer;
-	HRESULT result = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+	result = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
 	if (FAILED(result))
 	{
 		MessageBox(Window::MainWindow(), L"Failed to initialise back buffer", L"ERROR", MB_ICONERROR | MB_OK);
@@ -76,7 +120,11 @@ void Renderer::Init(HWND hWnd, int& width, int& height, bool fullScreen)
 
 	device->CreateRenderTargetView(pBackBuffer, NULL, &backBuffer);
 	pBackBuffer->Release();
-	context->OMSetRenderTargets(1, &backBuffer, NULL);
+
+	context->OMSetRenderTargets(1, &backBuffer, depthStencilView);
+
+	depthStencilView->Release();
+	depthStencilBuffer->Release();
 
 	D3D11_VIEWPORT viewPort;
 	ZeroMemory(&viewPort, sizeof(D3D11_VIEWPORT));
@@ -85,6 +133,8 @@ void Renderer::Init(HWND hWnd, int& width, int& height, bool fullScreen)
 	viewPort.TopLeftY = 0;
 	viewPort.Width = width;
 	viewPort.Height = height;
+	viewPort.MinDepth = 0.0f;
+	viewPort.MaxDepth = 1.0f;
 
 	context->RSSetViewports(1, &viewPort);
 
@@ -115,6 +165,7 @@ void Renderer::Render(CameraComponent* camera, std::vector<MeshComponent*>& mesh
 
 	float color[4] = { 0.0f, 0.2f, 0.4f, 1.0f };
 	context->ClearRenderTargetView(backBuffer, color);
+	context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	camera->Render();
 	for (int i = 0; i < 2; ++i)

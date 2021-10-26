@@ -14,6 +14,5 @@ public:
 
 	ID3D11ShaderResourceView* GetTexture();
 private:
-	ID3D11Resource* texture;
 	ID3D11ShaderResourceView* textureView;
 };

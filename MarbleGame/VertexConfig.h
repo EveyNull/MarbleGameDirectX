@@ -1,8 +1,10 @@
 #pragma once
 #include "Vector.h"
+#include <DirectXMath.h>
+
+using namespace DirectX;
 struct VertexConfig
 {
-	VECTOR3 position;
-	VECTOR4 color;
-	VECTOR2 textureUV;
+	XMVECTOR position;
+	XMVECTOR textureUV;
 };

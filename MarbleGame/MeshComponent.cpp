@@ -2,74 +2,50 @@
 
 void MeshComponent::MakeCube(ID3D11Device* device)
 {
+	XMVECTOR FBL = { -1.0f, -1.0f, 1.0f };
+	XMVECTOR FTL = { -1.0f, 1.0f, 1.0f };
+	XMVECTOR FTR = { 1.0f, 1.0f, 1.0f };
+	XMVECTOR FBR = { 1.0f, -1.0f, 1.0f };
+	XMVECTOR BBL= { -1.0f, -1.0f, -1.0f };
+	XMVECTOR BTL = { -1.0f, 1.0f, -1.0f };
+	XMVECTOR BTR = { 1.0f, 1.0f, -1.0f };
+	XMVECTOR BBR = { 1.0f, -1.0f, -1.0f };
 
+	XMVECTOR cube_data[] =
+	{
+		FBL, FTL, FTR,
+		FTR, FBR, FBL,
 
-	float cube_data[] = {
-	-1.0f,-1.0f,-1.0f, // triangle 1 : begin
-	-1.0f,-1.0f, 1.0f,
-	-1.0f, 1.0f, 1.0f, // triangle 1 : end
-	1.0f, 1.0f,-1.0f, // triangle 2 : begin
-	-1.0f,-1.0f,-1.0f,
-	-1.0f, 1.0f,-1.0f, // triangle 2 : end
-	1.0f,-1.0f, 1.0f,
-	-1.0f,-1.0f,-1.0f,
-	1.0f,-1.0f,-1.0f,
-	1.0f, 1.0f,-1.0f,
-	1.0f,-1.0f,-1.0f,
-	-1.0f,-1.0f,-1.0f,
-	-1.0f,-1.0f,-1.0f,
-	-1.0f, 1.0f, 1.0f,
-	-1.0f, 1.0f,-1.0f,
-	1.0f,-1.0f, 1.0f,
-	-1.0f,-1.0f, 1.0f,
-	-1.0f,-1.0f,-1.0f,
-	-1.0f, 1.0f, 1.0f,
-	-1.0f,-1.0f, 1.0f,
-	1.0f,-1.0f, 1.0f,
-	1.0f, 1.0f, 1.0f,
-	1.0f,-1.0f,-1.0f,
-	1.0f, 1.0f,-1.0f,
-	1.0f,-1.0f,-1.0f,
-	1.0f, 1.0f, 1.0f,
-	1.0f,-1.0f, 1.0f,
-	1.0f, 1.0f, 1.0f,
-	1.0f, 1.0f,-1.0f,
-	-1.0f, 1.0f,-1.0f,
-	1.0f, 1.0f, 1.0f,
-	-1.0f, 1.0f,-1.0f,
-	-1.0f, 1.0f, 1.0f,
-	1.0f, 1.0f, 1.0f,
-	-1.0f, 1.0f, 1.0f,
-	1.0f,-1.0f, 1.0f
+		FTL, BTL, BTR,
+		BTR, FTR, FTL,
+
+		BBL, BTL, BTR,
+		BTR, BBR, BBL,
+
+		BBL, FBL, FBR,
+		FBR, BBR, BBL,
+
+		BBL, BTL, FTL,
+		FTL, FBL, BBL,
+
+		FBR, FTR, BTR,
+		BTR, BBR, FBR
 	};
 
 	VertexConfig* vertices = new VertexConfig[36];
 
 	for (int i = 0; i < 36; ++i)
 	{
-		vertices[i].position.x = cube_data[i*3];
-		vertices[i].position.y = cube_data[i * 3 + 1];
-		vertices[i].position.z = cube_data[i * 3 + 2];
-		
-		int trianglepoint = i % 3;
-		switch (trianglepoint)
-		{
-		case 0:
-			vertices[i].color = { 1.0f, 0.0f, 0.0f, 1.0f };
-			break;
-		case 1:
-			vertices[i].color = { 0.0f, 1.0f, 0.0f, 1.0f };
-			break;
-		case 2:
-			vertices[i].color = { 0.0f, 0.0f, 1.0f, 1.0f };
-			break;
-		}
+		vertices[i].position = cube_data[i];
+		if (i % 6 == 0)vertices[i].textureUV = { 0.0f, 0.0f };
+		if (i % 6 == 1)vertices[i].textureUV = { 0.0f, 1.0f };
+		if (i % 6 == 2)vertices[i].textureUV = { 1.0f, 1.0f };
+		if (i % 6 == 3)vertices[i].textureUV = { 1.0f, 1.0f };
+		if (i % 6 == 4)vertices[i].textureUV = { 1.0f, 0.0f };
+		if (i % 6 == 5)vertices[i].textureUV = { 0.0f, 0.0f };
 	}
-	vertices[0].textureUV = { 0.0f, 0.0f };
-	vertices[1].textureUV = { 0.0f, 1.0f };
-	vertices[2].textureUV = { 1.0f, 0.0f };
 
-	LoadTexture(device, L"TestTexture.gif");
+	LoadTexture(device, L"braynzar.jpg");
 
 	InitBuffers(device, vertices, 36);
 
