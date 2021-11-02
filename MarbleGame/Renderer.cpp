@@ -158,6 +158,13 @@ void Renderer::Init(HWND hWnd, int& width, int& height, bool fullScreen)
 	{
 		MessageBox(hWnd, L"Could not initialise Color Shader", L"ERROR", MB_OK | MB_ICONERROR);
 	}
+
+	skyboxShader = new SkyboxShader();
+	if (!skyboxShader->InitSkybox(device, hWnd))
+	{
+		MessageBox(hWnd, L"Could not initialise Color Shader", L"ERROR", MB_OK | MB_ICONERROR);
+	}
+
 }
 
 void Renderer::Render(CameraComponent* camera, std::vector<MeshComponent*>& mesh, LightComponent* dirLight)
@@ -168,7 +175,11 @@ void Renderer::Render(CameraComponent* camera, std::vector<MeshComponent*>& mesh
 	context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	camera->Render();
-	for (int i = 0; i < 2; ++i)
+
+	mesh[0]->Render(context);
+	skyboxShader->Render(context, mesh[0]->GetIndexCount(), worldMatrix, *camera->GetViewMatrix(), m_projectionMatrix, mesh[0]->GetTexture());
+
+	for (int i = 1; i < mesh.size(); ++i)
 	{
 		MeshComponent* currMesh = mesh[i];
 		currMesh->Render(context);

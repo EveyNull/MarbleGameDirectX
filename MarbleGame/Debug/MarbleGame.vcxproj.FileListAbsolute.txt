@@ -1,6 +1,5 @@
-D:\C++ Programming\MarbleGame\Debug\MarbleGame.exe
-D:\Git\MarbleGameDirectX\MarbleGame\Debug\MarbleGame.exe
 D:\Git\MarbleGameDirectX\MarbleGame\Debug\MarbleGame.vcxproj.CopyComplete
+D:\Git\MarbleGameDirectX\MarbleGame\Debug\MarbleGame.exe
 D:\Git\MarbleGameDirectX\MarbleGame\Debug\xapobaseredist.pdb
 D:\Git\MarbleGameDirectX\MarbleGame\Debug\xaudio2_9redist.pdb
 D:\Git\MarbleGameDirectX\MarbleGame\Debug\xaudio2_9redist.dll

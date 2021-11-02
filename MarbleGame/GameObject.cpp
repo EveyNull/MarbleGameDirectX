@@ -5,7 +5,6 @@
 void GameObject::AddMeshComponent(HWND hWnd, ID3D11Device* device)
 {
 	meshComponent = new MeshComponent(hWnd);
-	meshComponent->MakeCube(device);
 }
 
 void GameObject::AddCameraComponent()
@@ -42,14 +41,16 @@ void GameObject::SetPosition(VECTOR3 newPos)
 
 void GameObject::Update(float dt)
 {
+
 	if (meshComponent)
 	{
+		/*
 		rotation.y += 0.5f * dt;
 		if (rotation.y > 360.0f) rotation.y -= 360.0f;
 		rotation.x += 0.5f * dt;
 		if (rotation.x > 360.0f) rotation.x -= 360.0f;
 		meshComponent->RotateMesh({ rotation.x, rotation.y, rotation.z });
-
+		*/
 		meshComponent->TranslateMesh({ position.x, position.y, position.z });
 	}
 

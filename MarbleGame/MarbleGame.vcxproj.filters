@@ -54,6 +54,9 @@
     <ClCompile Include="LightComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SkyboxShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MarbleGame.h">
@@ -98,12 +101,18 @@
     <ClInclude Include="LightComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SkyboxShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="VertexShader.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="SkyboxShader.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
   </ItemGroup>

@@ -12,6 +12,7 @@
 #pragma comment (lib, "d3dcompiler.lib")
 
 #include "Shader.h"
+#include "SkyboxShader.h"
 
 using namespace DirectX;	
 
@@ -29,6 +30,7 @@ public:
 private:
 	static Renderer* instance;
 	Shader* shader;
+	SkyboxShader* skyboxShader;
 
 	IDXGISwapChain* swapChain;
 	ID3D11RasterizerState* rasterizer;

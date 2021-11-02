@@ -16,8 +16,9 @@ class MeshComponent
 public:
 	MeshComponent(HWND& hWnd);
 	~MeshComponent();
-	void MakeCube(ID3D11Device* device);
+	void MakeCube(ID3D11Device* device, float height, float width, float length);
 	void MakeSphere(ID3D11Device* device);
+
 	void Render(ID3D11DeviceContext*);
 
 	void TranslateMesh(VECTOR3 position);

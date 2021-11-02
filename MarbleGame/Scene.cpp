@@ -10,14 +10,19 @@ Scene::~Scene()
 
 Scene::Scene(HWND hWnd, ID3D11Device* device)
 {
-	GameObject* triangle = new GameObject();
-	triangle->AddMeshComponent(hWnd, device);
-	gameObjects.push_back(triangle);
+	GameObject* cube1 = new GameObject();
+	cube1->AddMeshComponent(hWnd, device);
+	cube1->GetMeshComponent()->MakeCube(device, 1000.0f, 1000.0f, 1000.0f);
+	cube1->SetPosition({ 0.0, 0.0, 0.0 });
+	cube1->GetMeshComponent()->LoadTexture(device, L"skybox.jpg");
+	gameObjects.push_back(cube1);
 
-	GameObject* triangle2 = new GameObject();
-	triangle2->AddMeshComponent(hWnd, device);
-	triangle2->SetPosition({ 5.0, 1.0, 0.0 });
-	gameObjects.push_back(triangle2);
+	GameObject* cube2 = new GameObject();
+	cube2->AddMeshComponent(hWnd, device);
+	cube2->GetMeshComponent()->MakeCube(device, 1, 1, 1);
+	cube2->GetMeshComponent()->LoadTexture(device, L"braynzar.jpg");
+	cube2->SetPosition({ 1.0, 1.0, 1.0 });
+	gameObjects.push_back(cube2);
 
 	GameObject* camera = new GameObject();
 	camera->AddCameraComponent();

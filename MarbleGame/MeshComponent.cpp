@@ -1,15 +1,15 @@
 #include "MeshComponent.h"
 
-void MeshComponent::MakeCube(ID3D11Device* device)
+void MeshComponent::MakeCube(ID3D11Device* device, float height, float width, float length)
 {
-	VECTOR3 FBL = { -1.0f, -1.0f, 1.0f };
-	VECTOR3 FTL = { -1.0f, 1.0f, 1.0f };
-	VECTOR3 FTR = { 1.0f, 1.0f, 1.0f };
-	VECTOR3 FBR = { 1.0f, -1.0f, 1.0f };
-	VECTOR3 BBL= { -1.0f, -1.0f, -1.0f };
-	VECTOR3 BTL = { -1.0f, 1.0f, -1.0f };
-	VECTOR3 BTR = { 1.0f, 1.0f, -1.0f };
-	VECTOR3 BBR = { 1.0f, -1.0f, -1.0f };
+	VECTOR3 FBL = { -height/2, -width/2, length/2 };
+	VECTOR3 FTL = { -height / 2, width / 2, length / 2 };
+	VECTOR3 FTR = { height / 2, width / 2, length / 2 };
+	VECTOR3 FBR = { height / 2, -width / 2, length / 2 };
+	VECTOR3 BBL= { -height / 2, -width / 2, -length / 2 };
+	VECTOR3 BTL = { -height / 2, width / 2, -length / 2 };
+	VECTOR3 BTR = { height / 2, width / 2, -length / 2 };
+	VECTOR3 BBR = { height / 2, -width / 2, -length / 2 };
 
 	VECTOR3 cube_data[] =
 	{
@@ -45,8 +45,6 @@ void MeshComponent::MakeCube(ID3D11Device* device)
 		if (i % 6 == 5)vertices[i].textureUV = { 0.0f, 0.0f };
 		vertices[i].normal = cube_data[i];
 	}
-
-	LoadTexture(device, L"braynzar.jpg");
 
 	InitBuffers(device, vertices, 36);
 
