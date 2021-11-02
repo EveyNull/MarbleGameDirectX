@@ -22,7 +22,7 @@ public:
 	Renderer();
 	~Renderer();
 	void Init(HWND, int&, int&, bool);
-	void Render(CameraComponent*, std::vector<MeshComponent*>&);
+	void Render(CameraComponent*, std::vector<MeshComponent*>&, LightComponent*);
 	ID3D11Device* GetRenderDevice();
 	ID3D11DeviceContext* GetDeviceContext();
 

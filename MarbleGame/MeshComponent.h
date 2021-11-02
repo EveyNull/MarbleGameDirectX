@@ -17,6 +17,7 @@ public:
 	MeshComponent(HWND& hWnd);
 	~MeshComponent();
 	void MakeCube(ID3D11Device* device);
+	void MakeSphere(ID3D11Device* device);
 	void Render(ID3D11DeviceContext*);
 
 	void TranslateMesh(VECTOR3 position);

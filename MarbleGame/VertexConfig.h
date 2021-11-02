@@ -1,10 +1,10 @@
 #pragma once
 #include "Vector.h"
-#include <DirectXMath.h>
 
 using namespace DirectX;
 struct VertexConfig
 {
-	XMVECTOR position;
-	XMVECTOR textureUV;
+	VECTOR3 position;
+	VECTOR2 textureUV;
+	VECTOR3 normal;
 };

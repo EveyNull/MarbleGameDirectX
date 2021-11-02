@@ -1,5 +1,13 @@
 #include "Scene.h"
 #include <vector>
+Scene::~Scene()
+{
+	for (GameObject* object : gameObjects)
+	{
+		delete object;
+	}
+}
+
 Scene::Scene(HWND hWnd, ID3D11Device* device)
 {
 	GameObject* triangle = new GameObject();
@@ -13,12 +21,17 @@ Scene::Scene(HWND hWnd, ID3D11Device* device)
 
 	GameObject* camera = new GameObject();
 	camera->AddCameraComponent();
-	gameObjects.push_back(camera);
+	mainCamera = camera;
+
+	GameObject* dirLight = new GameObject();
+	dirLight->AddLightComponent({ 1.0f, 1.0f, 1.0f });
+	directionalLight = dirLight;
 }
 
 
 void Scene::Update(float dt)
 {
+	mainCamera->Update(dt);
 	for (GameObject* object : gameObjects)
 	{
 		object->Update(dt);
@@ -30,5 +43,5 @@ void Scene::Render(Renderer* renderer)
 	std::vector<MeshComponent*> meshes;
 	meshes.push_back(gameObjects[0]->GetMeshComponent());
 	meshes.push_back(gameObjects[1]->GetMeshComponent());
-	renderer->Render(gameObjects[2]->GetCameraComponent(), meshes);
+	renderer->Render(mainCamera->GetCameraComponent(), meshes, directionalLight->GetLightComponent());
 }

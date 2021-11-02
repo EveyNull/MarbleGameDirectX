@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CameraComponent.cpp" />
+    <ClCompile Include="LightComponent.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="InputManager.cpp" />
@@ -154,6 +155,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CameraComponent.h" />
+    <ClInclude Include="LightComponent.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="InputManager.h" />

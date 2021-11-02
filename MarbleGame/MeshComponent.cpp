@@ -2,16 +2,16 @@
 
 void MeshComponent::MakeCube(ID3D11Device* device)
 {
-	XMVECTOR FBL = { -1.0f, -1.0f, 1.0f };
-	XMVECTOR FTL = { -1.0f, 1.0f, 1.0f };
-	XMVECTOR FTR = { 1.0f, 1.0f, 1.0f };
-	XMVECTOR FBR = { 1.0f, -1.0f, 1.0f };
-	XMVECTOR BBL= { -1.0f, -1.0f, -1.0f };
-	XMVECTOR BTL = { -1.0f, 1.0f, -1.0f };
-	XMVECTOR BTR = { 1.0f, 1.0f, -1.0f };
-	XMVECTOR BBR = { 1.0f, -1.0f, -1.0f };
+	VECTOR3 FBL = { -1.0f, -1.0f, 1.0f };
+	VECTOR3 FTL = { -1.0f, 1.0f, 1.0f };
+	VECTOR3 FTR = { 1.0f, 1.0f, 1.0f };
+	VECTOR3 FBR = { 1.0f, -1.0f, 1.0f };
+	VECTOR3 BBL= { -1.0f, -1.0f, -1.0f };
+	VECTOR3 BTL = { -1.0f, 1.0f, -1.0f };
+	VECTOR3 BTR = { 1.0f, 1.0f, -1.0f };
+	VECTOR3 BBR = { 1.0f, -1.0f, -1.0f };
 
-	XMVECTOR cube_data[] =
+	VECTOR3 cube_data[] =
 	{
 		FBL, FTL, FTR,
 		FTR, FBR, FBL,
@@ -43,6 +43,7 @@ void MeshComponent::MakeCube(ID3D11Device* device)
 		if (i % 6 == 3)vertices[i].textureUV = { 1.0f, 1.0f };
 		if (i % 6 == 4)vertices[i].textureUV = { 1.0f, 0.0f };
 		if (i % 6 == 5)vertices[i].textureUV = { 0.0f, 0.0f };
+		vertices[i].normal = cube_data[i];
 	}
 
 	LoadTexture(device, L"braynzar.jpg");
@@ -51,6 +52,11 @@ void MeshComponent::MakeCube(ID3D11Device* device)
 
 	delete[] vertices;
 	vertices = nullptr;
+}
+
+void MeshComponent::MakeSphere(ID3D11Device* device)
+{
+
 }
 
 MeshComponent::MeshComponent(HWND& hWnd)

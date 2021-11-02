@@ -15,6 +15,11 @@ void GameObject::AddCameraComponent()
 	rotation = { 0.0f, 0.0f, 0.0f };
 }
 
+void GameObject::AddLightComponent(XMVECTOR direction)
+{
+	lightComponent = new LightComponent(direction, { 1.0f, 1.0f, 1.0f, 1.0f });
+}
+
 MeshComponent* GameObject::GetMeshComponent()
 {
 	return meshComponent;
@@ -23,6 +28,11 @@ MeshComponent* GameObject::GetMeshComponent()
 CameraComponent* GameObject::GetCameraComponent()
 {
 	return cameraComponent;
+}
+
+LightComponent* GameObject::GetLightComponent()
+{
+	return lightComponent;
 }
 
 void GameObject::SetPosition(VECTOR3 newPos)

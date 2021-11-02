@@ -160,10 +160,10 @@ void Renderer::Init(HWND hWnd, int& width, int& height, bool fullScreen)
 	}
 }
 
-void Renderer::Render(CameraComponent* camera, std::vector<MeshComponent*>& mesh)
+void Renderer::Render(CameraComponent* camera, std::vector<MeshComponent*>& mesh, LightComponent* dirLight)
 {
 
-	float color[4] = { 0.0f, 0.2f, 0.4f, 1.0f };
+	float color[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 	context->ClearRenderTargetView(backBuffer, color);
 	context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
@@ -174,7 +174,7 @@ void Renderer::Render(CameraComponent* camera, std::vector<MeshComponent*>& mesh
 		currMesh->Render(context);
 
 		bool result = shader->Render(context, currMesh->GetIndexCount(), currMesh->GetRotationMatrix(), currMesh->GetTranslationMatrix(), worldMatrix,
-			*camera->GetViewMatrix(), m_projectionMatrix, currMesh->GetTexture());
+			*camera->GetViewMatrix(), m_projectionMatrix, currMesh->GetTexture(), dirLight);
 		if (!result)
 		{
 			MessageBox(Window::MainWindow(), L"Failed to render with shader!", L"ERROR", MB_ICONERROR | MB_OK);

@@ -1,7 +1,2 @@
-﻿  Renderer.cpp
-D:\Git\MarbleGameDirectX\MarbleGame\Renderer.cpp(134,19): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
-D:\Git\MarbleGameDirectX\MarbleGame\Renderer.cpp(135,20): warning C4244: '=': conversion from 'int' to 'FLOAT', possible loss of data
-D:\Git\MarbleGameDirectX\MarbleGame\Renderer.cpp(144,21): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-D:\Git\MarbleGameDirectX\MarbleGame\Renderer.cpp(153,48): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-D:\Git\MarbleGameDirectX\MarbleGame\Renderer.cpp(153,41): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+﻿  Shader.cpp
   MarbleGame.vcxproj -> D:\Git\MarbleGameDirectX\MarbleGame\Debug\MarbleGame.exe

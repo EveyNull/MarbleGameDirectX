@@ -3,9 +3,9 @@
 
 Shader::~Shader()
 {
-	if (buffer)
+	if (matrixBuffer)
 	{
-		buffer->Release();
+		matrixBuffer->Release();
 	}
 	if (layout)
 	{
@@ -38,11 +38,11 @@ bool Shader::Initialize(ID3D11Device* device, HWND hWnd)
 }
 
 bool Shader::Render(ID3D11DeviceContext* context, int indexCount, XMMATRIX rotationMatrix, XMMATRIX translationMatrix, XMMATRIX worldMatrix,
-	XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
+	XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, LightComponent* lightComponent)
 {
 	bool result;
 
-	result = SetShaderParams(context, rotationMatrix, translationMatrix, worldMatrix, viewMatrix, projectionMatrix, texture);
+	result = SetShaderParams(context, rotationMatrix, translationMatrix, worldMatrix, viewMatrix, projectionMatrix, texture, lightComponent);
 
 	if (!result)
 	{
@@ -59,10 +59,11 @@ bool Shader::InitializeShader(ID3D11Device* device, HWND hWnd, LPCWSTR vsFile, L
 	ID3D10Blob* errorMessage;
 	ID3D10Blob* vertexShaderBuffer;
 	ID3D10Blob* pixelShaderBuffer;
-	D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
+	D3D11_INPUT_ELEMENT_DESC polygonLayout[3];
 	unsigned int numElements;
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
+	D3D11_BUFFER_DESC lightBufferDesc;
 
 	errorMessage = nullptr;
 	vertexShaderBuffer = nullptr;
@@ -113,7 +114,7 @@ bool Shader::InitializeShader(ID3D11Device* device, HWND hWnd, LPCWSTR vsFile, L
 
 	polygonLayout[0].SemanticName = "POSITION";
 	polygonLayout[0].SemanticIndex = 0;
-	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	polygonLayout[0].InputSlot = 0;
 	polygonLayout[0].AlignedByteOffset = 0;
 	polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
@@ -126,6 +127,14 @@ bool Shader::InitializeShader(ID3D11Device* device, HWND hWnd, LPCWSTR vsFile, L
 	polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 	polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[1].InstanceDataStepRate = 0;
+
+	polygonLayout[2].SemanticName = "NORMAL";
+	polygonLayout[2].SemanticIndex = 0;
+	polygonLayout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	polygonLayout[2].InputSlot = 0;
+	polygonLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	polygonLayout[2].InstanceDataStepRate = 0;
 
 	numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
@@ -150,7 +159,7 @@ bool Shader::InitializeShader(ID3D11Device* device, HWND hWnd, LPCWSTR vsFile, L
 	matrixBufferDesc.MiscFlags = 0;
 	matrixBufferDesc.StructureByteStride = 0;
 
-	result = device->CreateBuffer(&matrixBufferDesc, NULL, &buffer);
+	result = device->CreateBuffer(&matrixBufferDesc, NULL, &matrixBuffer);
 	if (FAILED(result))
 	{
 		return false;
@@ -176,15 +185,28 @@ bool Shader::InitializeShader(ID3D11Device* device, HWND hWnd, LPCWSTR vsFile, L
 		return false;
 	}
 
+	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
+	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	lightBufferDesc.MiscFlags = 0;
+	lightBufferDesc.StructureByteStride = 0;
+	result = device->CreateBuffer(&lightBufferDesc, NULL, &lightBuffer);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
 	return true;
 }
 
 bool Shader::SetShaderParams(ID3D11DeviceContext* context, XMMATRIX rotationMatrix, XMMATRIX translationMatrix, XMMATRIX worldMatrix,
-	XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
+	XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, LightComponent* lightComponent)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
+	LightBufferType* dataPtr2;
 	unsigned int bufferNumber;
 
 	rotationMatrix = XMMatrixTranspose(rotationMatrix);
@@ -193,7 +215,7 @@ bool Shader::SetShaderParams(ID3D11DeviceContext* context, XMMATRIX rotationMatr
 	viewMatrix = XMMatrixTranspose(viewMatrix);
 	projectionMatrix = XMMatrixTranspose(projectionMatrix);
 
-	result = context->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = context->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
 	{
 		return false;
@@ -206,11 +228,27 @@ bool Shader::SetShaderParams(ID3D11DeviceContext* context, XMMATRIX rotationMatr
 	dataPtr->view = viewMatrix;
 	dataPtr->projection = projectionMatrix;
 
-	context->Unmap(buffer, 0);
+	context->Unmap(matrixBuffer, 0);
 
 	bufferNumber = 0;
 
-	context->VSSetConstantBuffers(bufferNumber, 1, &buffer);
+	context->VSSetConstantBuffers(bufferNumber, 1, &matrixBuffer);
+
+	result = context->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+	dataPtr2 = (LightBufferType*)mappedResource.pData;
+	dataPtr2->direction = lightComponent->GetDirection();
+	dataPtr2->color = lightComponent->GetColor();
+
+	context->Unmap(lightBuffer, 0);
+
+	bufferNumber = 0;
+
+	context->PSSetConstantBuffers(bufferNumber, 1, &lightBuffer);
+
 	context->PSSetShaderResources(0, 1, &texture);
 
 	return true;
