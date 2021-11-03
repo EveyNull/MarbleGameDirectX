@@ -44,19 +44,16 @@ void GameObject::Update(float dt)
 
 	if (meshComponent)
 	{
-		/*
+		
 		rotation.y += 0.5f * dt;
 		if (rotation.y > 360.0f) rotation.y -= 360.0f;
-		rotation.x += 0.5f * dt;
-		if (rotation.x > 360.0f) rotation.x -= 360.0f;
 		meshComponent->RotateMesh({ rotation.x, rotation.y, rotation.z });
-		*/
 		meshComponent->TranslateMesh({ position.x, position.y, position.z });
 	}
 
 	if (cameraComponent)
 	{
-		float speed = 1.0f;
+		float speed = 3.0f;
 		float move = speed * dt;
 		float rot = speed * dt * 5.0f;
 		InputManager* inputManager = InputManager::Instance();

@@ -14,22 +14,29 @@ Scene::Scene(HWND hWnd, ID3D11Device* device)
 	cube1->AddMeshComponent(hWnd, device);
 	cube1->GetMeshComponent()->MakeCube(device, 1000.0f, 1000.0f, 1000.0f);
 	cube1->SetPosition({ 0.0, 0.0, 0.0 });
-	cube1->GetMeshComponent()->LoadTexture(device, L"skybox.jpg");
+	cube1->GetMeshComponent()->LoadTexture(device, L"skybox.png");
 	gameObjects.push_back(cube1);
 
 	GameObject* cube2 = new GameObject();
 	cube2->AddMeshComponent(hWnd, device);
 	cube2->GetMeshComponent()->MakeCube(device, 1, 1, 1);
-	cube2->GetMeshComponent()->LoadTexture(device, L"braynzar.jpg");
+	cube2->GetMeshComponent()->LoadTexture(device, L"minecraftcube.jpg");
 	cube2->SetPosition({ 1.0, 1.0, 1.0 });
 	gameObjects.push_back(cube2);
+
+	GameObject* sphere = new GameObject();
+	sphere->AddMeshComponent(hWnd, device);
+	sphere->GetMeshComponent()->MakeSphere(device, 0.6f, 8);
+	sphere->GetMeshComponent()->LoadTexture(device, L"braynzar.jpg");
+	sphere->SetPosition({ -1.0, 1.0, 1.0 });
+	gameObjects.push_back(sphere);
 
 	GameObject* camera = new GameObject();
 	camera->AddCameraComponent();
 	mainCamera = camera;
 
 	GameObject* dirLight = new GameObject();
-	dirLight->AddLightComponent({ 1.0f, 1.0f, 1.0f });
+	dirLight->AddLightComponent({ 0.2f, -1.0f, 1.0f });
 	directionalLight = dirLight;
 }
 
@@ -48,5 +55,6 @@ void Scene::Render(Renderer* renderer)
 	std::vector<MeshComponent*> meshes;
 	meshes.push_back(gameObjects[0]->GetMeshComponent());
 	meshes.push_back(gameObjects[1]->GetMeshComponent());
+	meshes.push_back(gameObjects[2]->GetMeshComponent());
 	renderer->Render(mainCamera->GetCameraComponent(), meshes, directionalLight->GetLightComponent());
 }

@@ -16,8 +16,8 @@ class MeshComponent
 public:
 	MeshComponent(HWND& hWnd);
 	~MeshComponent();
-	void MakeCube(ID3D11Device* device, float height, float width, float length);
-	void MakeSphere(ID3D11Device* device);
+	void MakeCube(ID3D11Device*, float, float, float);
+	void MakeSphere(ID3D11Device*, float, int);
 
 	void Render(ID3D11DeviceContext*);
 
@@ -33,7 +33,7 @@ public:
 	int GetIndexCount();
 
 private:
-	bool InitBuffers(ID3D11Device*, VertexConfig*, int);
+	bool InitBuffers(ID3D11Device*, VertexConfig*, unsigned long*);
 	void RenderBuffers(ID3D11DeviceContext*);
 
 	HWND hWnd;

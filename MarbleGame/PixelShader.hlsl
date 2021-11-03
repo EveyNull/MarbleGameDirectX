@@ -22,7 +22,7 @@ float4 TexturePixelShader(PixelInputType input) : SV_TARGET
     float3 direction = -lightDir;
     float brightness = saturate(dot(input.normal, direction));
 
-    brightness = clamp(brightness, 0.2, 1);
+    brightness = clamp(brightness, 0.5, 1);
 
     float4 color = saturate(lightColor * brightness);
     outputTex = color * outputTex;
