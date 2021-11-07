@@ -1,4 +1,5 @@
 #pragma once
+#include "CollisionManager.h"
 #include "GameObject.h"
 #include "Renderer.h"
 #include <vector>
@@ -10,9 +11,14 @@ public:
 	void Update(float dt);
 	void Render(Renderer*);
 private:
-	std::vector<GameObject*> gameObjects;
-
+	GameObject* skyBox;
 	GameObject* mainCamera;
 	GameObject* directionalLight;
+	GameObject* playerSphere;
+
+	GameObject** levelGeometry;
+	int geometryNumber;
+
+	CollisionManager* collisionManager;
 };
 

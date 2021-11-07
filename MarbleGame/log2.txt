@@ -1,0 +1,1 @@
+Collision with triangle, normal: -0.166667,0.5,-0.166667

@@ -5,6 +5,7 @@
 void GameObject::AddMeshComponent(HWND hWnd, ID3D11Device* device)
 {
 	meshComponent = new MeshComponent(hWnd);
+	meshComponent->TranslateMesh(position);
 }
 
 void GameObject::AddCameraComponent()
@@ -17,6 +18,11 @@ void GameObject::AddCameraComponent()
 void GameObject::AddLightComponent(XMVECTOR direction)
 {
 	lightComponent = new LightComponent(direction, { 1.0f, 1.0f, 1.0f, 1.0f });
+}
+
+void GameObject::AddRigidbody(float mass)
+{
+	rigidbody = new RigidbodyComponent(mass);
 }
 
 MeshComponent* GameObject::GetMeshComponent()
@@ -34,66 +40,68 @@ LightComponent* GameObject::GetLightComponent()
 	return lightComponent;
 }
 
+RigidbodyComponent* GameObject::GetRigidbody()
+{
+	return rigidbody;
+}
+
+VECTOR3 GameObject::GetPosition()
+{
+	return position;
+}
+
 void GameObject::SetPosition(VECTOR3 newPos)
 {
 	position = newPos;
+	if (meshComponent)
+	{
+		meshComponent->TranslateMesh(position);
+	}
+	if (cameraComponent)
+	{
+		XMVECTOR newCameraPos =
+		{
+			newPos.x,
+			newPos.y,
+			newPos.z
+		};
+		cameraComponent->SetPosition(newCameraPos);
+	}
 }
 
 void GameObject::Update(float dt)
 {
 
-	if (meshComponent)
-	{
-		
-		rotation.y += 0.5f * dt;
-		if (rotation.y > 360.0f) rotation.y -= 360.0f;
-		meshComponent->RotateMesh({ rotation.x, rotation.y, rotation.z });
-		meshComponent->TranslateMesh({ position.x, position.y, position.z });
-	}
-
-	if (cameraComponent)
+	if (rigidbody)
 	{
 		float speed = 3.0f;
 		float move = speed * dt;
-		float rot = speed * dt * 5.0f;
 		InputManager* inputManager = InputManager::Instance();
 		if ((int)inputManager->GetKeyState(VK_LEFT) > 0)
 		{
-			position.x -= move;
+			rigidbody->SetXVelocity(-1);
 		}
-		if ((int)inputManager->GetKeyState(VK_RIGHT) > 0)
+		else if ((int)inputManager->GetKeyState(VK_RIGHT) > 0)
 		{
-			position.x += move;
+			rigidbody->SetXVelocity(1);
+		}
+		else
+		{
+			rigidbody->SetXVelocity(0);
 		}
 		if ((int)inputManager->GetKeyState(VK_UP) > 0)
 		{
-			position.y += move;
+			rigidbody->SetZVelocity(1);
 		}
-		if ((int)inputManager->GetKeyState(VK_DOWN) > 0)
+		else if ((int)inputManager->GetKeyState(VK_DOWN) > 0)
 		{
-			position.y -= move;
+			rigidbody->SetZVelocity(-1);
 		}
-
-		if ((int)inputManager->GetKeyState(87) > 0)
+		else
 		{
-			rotation.x += rot;
+			rigidbody->SetZVelocity(0);
 		}
-
-		if ((int)inputManager->GetKeyState(83) > 0)
-		{
-			rotation.x -= rot;
-		}
-
-		if ((int)inputManager->GetKeyState(65) > 0)
-		{
-			rotation.y -= rot;
-		}
-
-		if ((int)inputManager->GetKeyState(68) > 0)
-		{
-			rotation.y += rot;
-		}
-		cameraComponent->SetPosition({ position.x, position.y, position.z });
-		cameraComponent->SetRotation(rotation);
+		rigidbody->Update(dt, position, rotation);
+		SetPosition(position);
 	}
 }

@@ -40,7 +40,7 @@ void MeshComponent::MakeCube(ID3D11Device* device, float height, float width, fl
 		BTL, BBL, BBR,
 	};
 
-	VertexConfig* vertices = new VertexConfig[36];
+	vertices = new VertexConfig[36];
 
 
 	// Buckle up lads we're gonna UV map
@@ -74,7 +74,7 @@ void MeshComponent::MakeCube(ID3D11Device* device, float height, float width, fl
 		}
 		if (i % 6 == 5) face++;
 	}
-	unsigned long* indices = new unsigned long[36];
+	indices = new unsigned long[36];
 	for (int i = 0; i < 36; ++i)
 	{
 		indices[i] = i;
@@ -83,17 +83,11 @@ void MeshComponent::MakeCube(ID3D11Device* device, float height, float width, fl
 	vertexCount = 36;
 	indexCount = 36;
 	InitBuffers(device, vertices, indices);
-
-	delete[] vertices;
-	vertices = nullptr;
-
-	delete[] indices;
-	indices = nullptr;
 }
 
 void MeshComponent::MakeSphere(ID3D11Device* device, float radius, int subDivisions)
 {
-	VertexConfig* vertices = new VertexConfig[(subDivisions * subDivisions) + 1];
+	vertices = new VertexConfig[(subDivisions * subDivisions) + 1];
 	int vertex = 0;
 
 	float hStep = XM_2PI / subDivisions;
@@ -138,7 +132,7 @@ void MeshComponent::MakeSphere(ID3D11Device* device, float radius, int subDivisi
 	vertices[vertex].textureUV = { 0, 1 };
 	vertex++;
 
-	unsigned long* indices = new unsigned long[6 * ((subDivisions * subDivisions) + subDivisions)];
+	indices = new unsigned long[6 * ((subDivisions * subDivisions) + subDivisions)];
 	int index = 0;
 
 	for (int i = 0; i <= subDivisions; ++i)
@@ -176,12 +170,6 @@ void MeshComponent::MakeSphere(ID3D11Device* device, float radius, int subDivisi
 	vertexCount = vertex;
 	indexCount = index;
 	InitBuffers(device, vertices, indices);
-
-	delete[] vertices;
-	vertices = nullptr;
-
-	delete[] indices;
-	indices = nullptr;
 }
 
 MeshComponent::MeshComponent(HWND& hWnd)
@@ -213,6 +201,16 @@ MeshComponent::~MeshComponent()
 	{
 		delete texture;
 	}
+}
+
+VertexConfig* MeshComponent::GetVertices()
+{
+	return vertices;
+}
+
+unsigned long* MeshComponent::GetIndices()
+{
+	return indices;
 }
 
 int MeshComponent::GetIndexCount()

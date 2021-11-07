@@ -14,6 +14,7 @@ using namespace DirectX;
 class MeshComponent
 {
 public:
+	MeshComponent() = default;
 	MeshComponent(HWND& hWnd);
 	~MeshComponent();
 	void MakeCube(ID3D11Device*, float, float, float);
@@ -26,6 +27,9 @@ public:
 
 	void LoadTexture(ID3D11Device*, const wchar_t*);
 	ID3D11ShaderResourceView* GetTexture();
+
+	VertexConfig* GetVertices();
+	unsigned long* GetIndices();
 
 	XMMATRIX GetRotationMatrix();
 	XMMATRIX GetTranslationMatrix();
@@ -46,6 +50,8 @@ private:
 
 	Texture* texture;
 
+	VertexConfig* vertices;
+	unsigned long* indices;
 	int vertexCount, indexCount;
 };
 
