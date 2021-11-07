@@ -20,7 +20,7 @@ Scene::Scene(HWND hWnd, ID3D11Device* device)
 
 	GameObject* sphere = new GameObject();
 	sphere->AddMeshComponent(hWnd, device);
-	sphere->GetMeshComponent()->MakeSphere(device, 0.4f, 8);
+	sphere->GetMeshComponent()->MakeSphere(device, 0.3f, 12);
 	sphere->GetMeshComponent()->LoadTexture(device, L"braynzar.jpg");
 	sphere->SetPosition({ 0.0, 2.0, 0.5 });
 	sphere->AddRigidbody(1);
@@ -42,6 +42,7 @@ Scene::Scene(HWND hWnd, ID3D11Device* device)
 	GameObject* camera = new GameObject();
 	camera->AddCameraComponent();
 	mainCamera = camera;
+	mainCamera->GetCameraComponent()->SetRotation({ 10, 90, 0 });
 
 	GameObject* dirLight = new GameObject();
 	dirLight->AddLightComponent({ 0.0f, -3.0f, 0.0f });
@@ -77,18 +78,21 @@ void Scene::Update(float dt)
 		playerSphere->GetRigidbody()->SetVelocity(newVel * 0.4f);
 		playerSphere->SetPosition(playerSphere->GetPosition() + newVel * dt * 2);
 		attempts++;
-		if (attempts > 5)
+		if (attempts > 1)
 		{
-			playerSphere->SetPosition(playerSphere->GetPosition() + VECTOR3{0, 0.3f, 0});
-			break;
+			playerSphere->SetPosition(playerSphere->GetPosition() - collisionNormal * 0.01f);
+			if (attempts > 50)
+			{
+				break;
+			}
 		}
 	}
 	playerSphere->SetPosition(playerSphere->GetPosition() + (playerSphere->GetRigidbody()->GetVelocity() * dt));
 
-	VECTOR3 cameraOffset = { 0.0, 1.0, -15.0 };
+	VECTOR3 cameraOffset = { -5.0, 1.5f, 0.0 };
 	mainCamera->SetPosition(playerSphere->GetPosition() + cameraOffset);
 
-	if (playerSphere->GetPosition().y < -500.0f)
+	if (playerSphere->GetPosition().y < -50.0f)
 	{
 		playerSphere->SetPosition({ 0.0f, 10.0f, 0.0f });
 		playerSphere->GetRigidbody()->SetVelocity({ 0,0,0 });

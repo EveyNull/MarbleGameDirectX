@@ -90,11 +90,11 @@ void GameObject::Update(float dt)
 		float speed = 3.0f;
 		float move = speed * dt;
 		InputManager* inputManager = InputManager::Instance();
-		if ((int)inputManager->GetKeyState(VK_LEFT) > 0)
+		if ((int)inputManager->GetKeyState(VK_DOWN) > 0)
 		{
 			rigidbody->SetXVelocity(-1);
 		}
-		else if ((int)inputManager->GetKeyState(VK_RIGHT) > 0)
+		else if ((int)inputManager->GetKeyState(VK_UP) > 0)
 		{
 			rigidbody->SetXVelocity(1);
 		}
@@ -102,11 +102,11 @@ void GameObject::Update(float dt)
 		{
 			rigidbody->SetXVelocity(0);
 		}
-		if ((int)inputManager->GetKeyState(VK_UP) > 0)
+		if ((int)inputManager->GetKeyState(VK_LEFT) > 0)
 		{
 			rigidbody->SetZVelocity(1);
 		}
-		else if ((int)inputManager->GetKeyState(VK_DOWN) > 0)
+		else if ((int)inputManager->GetKeyState(VK_RIGHT) > 0)
 		{
 			rigidbody->SetZVelocity(-1);
 		}
