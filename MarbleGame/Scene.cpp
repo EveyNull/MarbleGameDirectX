@@ -20,9 +20,9 @@ Scene::Scene(HWND hWnd, ID3D11Device* device)
 
 	GameObject* sphere = new GameObject();
 	sphere->AddMeshComponent(hWnd, device);
-	sphere->GetMeshComponent()->MakeSphere(device, 0.5f, 8);
+	sphere->GetMeshComponent()->MakeSphere(device, 0.4f, 8);
 	sphere->GetMeshComponent()->LoadTexture(device, L"braynzar.jpg");
-	sphere->SetPosition({ 0.0, 2.0, 0.0 });
+	sphere->SetPosition({ 0.0, 2.0, 0.5 });
 	sphere->AddRigidbody(1);
 	playerSphere = sphere;
 
@@ -44,7 +44,7 @@ Scene::Scene(HWND hWnd, ID3D11Device* device)
 	mainCamera = camera;
 
 	GameObject* dirLight = new GameObject();
-	dirLight->AddLightComponent({ 0.2f, -1.0f, 1.0f });
+	dirLight->AddLightComponent({ 0.0f, -3.0f, 0.0f });
 	directionalLight = dirLight;
 }
 
@@ -60,38 +60,39 @@ void Scene::Update(float dt)
 
 	VECTOR3 currentVelocity = playerSphere->GetRigidbody()->GetVelocity();
 
-	bool collision = collisionManager->CheckSphereOnMeshes(playerSphere, collisionNormal, collisionPoint);
-	if (collision)
+	int attempts = 0;
+	while (collisionManager->CheckSphereOnMeshes(playerSphere, collisionNormal, collisionPoint))
 	{
-		if (abs(collisionNormal.y == 0))
+		collisionNormal = collisionNormal.normalise();
+		VECTOR3 normVel = currentVelocity.normalise();
+
+		float a = -2 * (normVel.x * collisionNormal.x + normVel.y * collisionNormal.y + normVel.z * collisionNormal.z);
+
+		VECTOR3 newVel = collisionNormal;
+		newVel *= a;
+		newVel += normVel;
+
+		newVel *= currentVelocity.magnitude() * 0.9f;
+
+		playerSphere->GetRigidbody()->SetVelocity(newVel * 0.4f);
+		playerSphere->SetPosition(playerSphere->GetPosition() + newVel * dt * 2);
+		attempts++;
+		if (attempts > 5)
 		{
-			int test = 0;
+			playerSphere->SetPosition(playerSphere->GetPosition() + VECTOR3{0, 0.3f, 0});
+			break;
 		}
-
-		playerSphere->GetRigidbody()->SetVelocity({
-			abs(collisionNormal.x) > 0 ? 0 : currentVelocity.x,
-			abs(collisionNormal.y) > 0 ? -currentVelocity.y : currentVelocity.y,
-			abs(collisionNormal.z) > 0 ? 0 : currentVelocity.z,
-
-			});
-		VECTOR3 newVelocity = -collisionNormal * abs(Dot(playerSphere->GetRigidbody()->GetVelocity(), collisionNormal));
-		playerSphere->GetRigidbody()->AddVelocity(newVelocity*1.75f);
-		/*
-		VECTOR3 ballVelocity = gameObjects[1]->GetRigidbody()->GetVelocity();
-		XMVECTOR v1 = { collisionNormal.x, collisionNormal.y, collisionNormal.z };
-		XMVECTOR v2 = { ballVelocity.x, ballVelocity.y, ballVelocity.z };
-		XMFLOAT3 XMdot;
-		XMStoreFloat3(&XMdot, DirectX::XMVector3Dot(v2, v1));
-		VECTOR3 dot = { 0, XMdot.y, 0 };
-		VECTOR3 newPosition = gameObjects[1]->GetPosition();
-		gameObjects[1]->SetPosition({ newPosition.x, currentPosition.y, newPosition.z });
-		gameObjects[1]->GetRigidbody()->AddVelocity((collisionNormal * dot) - (gameObjects[1]->GetRigidbody()->GetVelocity() * 1.5f));
-		*/
 	}
 	playerSphere->SetPosition(playerSphere->GetPosition() + (playerSphere->GetRigidbody()->GetVelocity() * dt));
 
 	VECTOR3 cameraOffset = { 0.0, 1.0, -15.0 };
 	mainCamera->SetPosition(playerSphere->GetPosition() + cameraOffset);
+
+	if (playerSphere->GetPosition().y < -500.0f)
+	{
+		playerSphere->SetPosition({ 0.0f, 10.0f, 0.0f });
+		playerSphere->GetRigidbody()->SetVelocity({ 0,0,0 });
+	}
 }
 
 void Scene::Render(Renderer* renderer)

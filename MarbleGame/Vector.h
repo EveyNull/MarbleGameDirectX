@@ -39,6 +39,12 @@ struct VECTOR3
 		output *= multi;
 		return output;
 	}
+	void operator/=(const float& div)
+	{
+		x /= div;
+		y /= div;
+		z /= div;
+	}
 	VECTOR3 operator-()
 	{
 		return { -x, -y, -z };
@@ -58,6 +64,20 @@ struct VECTOR3
 	VECTOR3 absolute()
 	{
 		return { abs(x), abs(y), abs(z) };
+	}
+	float magnitude()
+	{
+		return sqrt((x * x) + (y * y) + (z * z));
+	}
+	VECTOR3 normalise()
+	{
+		float mag = magnitude();
+		if (mag == 0)
+		{
+			return { x, y, z };
+		}
+		VECTOR3 normalised = { x / mag, y / mag, z / mag };
+		return normalised;
 	}
 };
 

@@ -313,7 +313,7 @@ void MeshComponent::TranslateMesh(VECTOR3 position)
 	translationMatrix = XMMatrixTranslation(position.x, position.y, position.z);
 }
 
-void MeshComponent::RotateMesh(VECTOR3 rotation)
+void MeshComponent::RotateMesh(const XMMATRIX& rotation)
 {
-	rotationMatrix = XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z);
+	rotationMatrix = rotation;
 }

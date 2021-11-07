@@ -13,9 +13,11 @@ CollisionManager::CollisionManager(GameObject** geometry, int geometryCount)
 
 bool CollisionManager::CheckSphereOnMeshes(GameObject* sphere, VECTOR3& outNormal, VECTOR3& collisionPoint)
 {
-	bool collision = false;
+	outNormal = { 0,0,0 };
 	float sphereRadius = sphere->GetMeshComponent()->GetVertices()[0].position.y;
 	VECTOR3 spherePos = sphere->GetPosition();
+
+	int numCollisions = 0;
 	
 	for (int i = 0; i < geometryNumber; ++i)
 	{
@@ -103,12 +105,22 @@ bool CollisionManager::CheckSphereOnMeshes(GameObject* sphere, VECTOR3& outNorma
 			{
 				XMFLOAT3 float3;
 				XMStoreFloat3(&float3, normal);
-				outNormal = { float3.x, float3.y, float3.z };
+				outNormal += { float3.x, float3.y, float3.z };
 				VECTOR3 avg = { (v1.x + v2.x + v3.x) / 3, (v1.y + v2.y + v3.y) / 3, (v1.z + v2.z + v3.z) / 3 };
-				collisionPoint = avg;
-				return true;
+
+				numCollisions++;
+
+				collisionPoint += avg;
 			}
 		}
+	}
+	if (numCollisions > 0)
+	{
+		if (numCollisions > 1)
+		{
+			outNormal /= numCollisions;
+		}
+		return true;
 	}
 	return false;
 }

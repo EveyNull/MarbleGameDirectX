@@ -2,6 +2,12 @@
 #include "InputManager.h"
 
 
+GameObject::GameObject()
+{
+	position = { 0.0f, 0.0f, 0.0f };
+	rotation = XMMatrixIdentity();
+}
+
 void GameObject::AddMeshComponent(HWND hWnd, ID3D11Device* device)
 {
 	meshComponent = new MeshComponent(hWnd);
@@ -11,8 +17,6 @@ void GameObject::AddMeshComponent(HWND hWnd, ID3D11Device* device)
 void GameObject::AddCameraComponent()
 {
 	cameraComponent = new CameraComponent();
-	position = { 0.0f, 0.0f, -10.0f };
-	rotation = { 0.0f, 0.0f, 0.0f };
 }
 
 void GameObject::AddLightComponent(XMVECTOR direction)
@@ -69,6 +73,15 @@ void GameObject::SetPosition(VECTOR3 newPos)
 	}
 }
 
+void GameObject::SetRotation(const XMMATRIX& newRot)
+{
+	rotation = newRot;
+	if (meshComponent)
+	{
+		meshComponent->RotateMesh(rotation);
+	}
+}
+
 void GameObject::Update(float dt)
 {
 
@@ -101,7 +114,8 @@ void GameObject::Update(float dt)
 		{
 			rigidbody->SetZVelocity(0);
 		}
-		rigidbody->Update(dt, position, rotation);
-		SetPosition(position);
+		rigidbody->Update(dt, position);
+
+		SetRotation(rotation * XMMatrixRotationX(rigidbody->GetVelocity().z * 0.005f) * XMMatrixRotationZ(-rigidbody->GetVelocity().x * 0.005f));
 	}
 }

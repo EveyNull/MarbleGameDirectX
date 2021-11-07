@@ -23,7 +23,7 @@ public:
 	void Render(ID3D11DeviceContext*);
 
 	void TranslateMesh(VECTOR3 position);
-	void RotateMesh(VECTOR3 rotation);
+	void RotateMesh(const XMMATRIX& rotation);
 
 	void LoadTexture(ID3D11Device*, const wchar_t*);
 	ID3D11ShaderResourceView* GetTexture();

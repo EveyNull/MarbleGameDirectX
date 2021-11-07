@@ -9,7 +9,7 @@ RigidbodyComponent::RigidbodyComponent(float newMass)
 	torque = { 0, 0, 0 };
 }
 
-void RigidbodyComponent::Update(float dt, VECTOR3& position, VECTOR3& rotation)
+void RigidbodyComponent::Update(float dt, VECTOR3& position)
 {
 	if (gravity)
 	{

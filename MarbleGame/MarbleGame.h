@@ -33,8 +33,8 @@ private:
 	bool full_screen = false;
 	int window_width, window_height;
 
-	float startTime = 0.0f;
-	float prevTime = 0.0f;
+	unsigned long long startTime = 0;
+	unsigned long long prevTime = 0;
 
 	void InitWindow(HINSTANCE&);
 };

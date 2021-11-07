@@ -7,7 +7,7 @@
 class GameObject
 {
 public:
-	GameObject() = default;
+	GameObject();
 	~GameObject() = default;
 
 	void AddMeshComponent(HWND, ID3D11Device*);
@@ -21,7 +21,7 @@ public:
 	RigidbodyComponent* GetRigidbody();
 
 	void SetPosition(VECTOR3);
-	void SetRotation(VECTOR3);
+	void SetRotation(const XMMATRIX&);
 
 	VECTOR3 GetPosition();
 
@@ -33,6 +33,6 @@ private:
 	RigidbodyComponent* rigidbody;
 
 	VECTOR3 position;
-	VECTOR3 rotation;
+	XMMATRIX rotation;
 };
 

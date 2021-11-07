@@ -8,7 +8,7 @@ public:
 	RigidbodyComponent(float);
 	~RigidbodyComponent() = default;
 
-	void Update(float dt, VECTOR3& position, VECTOR3& rotation);
+	void Update(float dt, VECTOR3& position);
 
 	void SetVelocity(const VECTOR3& newVelocity);
 

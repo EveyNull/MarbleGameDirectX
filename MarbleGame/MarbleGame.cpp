@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <ctime>
+
 
 MarbleGame::~MarbleGame()
 {
@@ -49,7 +51,8 @@ void MarbleGame::Run()
 	MSG msg;
 
 	bool running = true;
-	prevTime = GetTickCount64();
+	std::clock_t start = std::clock();
+	prevTime = start;
 
 	while (running)
 	{
@@ -66,9 +69,9 @@ void MarbleGame::Run()
 		{
 			PostQuitMessage(0);
 		}
-		float currentTime = GetTickCount64();
-
-		scene->Update((currentTime - prevTime)/1000.0f);
+		unsigned long long currentTime = std::clock() - start;
+		float test = (currentTime - prevTime);
+		scene->Update(test * 0.001f);
 
 		prevTime = currentTime;
 		scene->Render(renderer);
