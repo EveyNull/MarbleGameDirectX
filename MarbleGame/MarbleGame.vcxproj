@@ -142,11 +142,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AudioManager.cpp" />
     <ClCompile Include="CameraComponent.cpp" />
     <ClCompile Include="CollisionComponent.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="LevelLoader.cpp" />
     <ClCompile Include="LightComponent.cpp" />
+    <ClCompile Include="MathHelper.cpp" />
+    <ClCompile Include="MovementComponent.cpp" />
     <ClCompile Include="RigidbodyComponent.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="GameObject.cpp" />
@@ -162,11 +165,14 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AudioManager.h" />
     <ClInclude Include="CameraComponent.h" />
     <ClInclude Include="CollisionComponent.h" />
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="LevelLoader.h" />
     <ClInclude Include="LightComponent.h" />
+    <ClInclude Include="MathHelper.h" />
+    <ClInclude Include="MovementComponent.h" />
     <ClInclude Include="RigidbodyComponent.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="GameObject.h" />

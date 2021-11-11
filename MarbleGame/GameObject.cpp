@@ -1,5 +1,6 @@
 #include "GameObject.h"
 #include "InputManager.h"
+#include <algorithm>
 
 
 GameObject::GameObject()
@@ -29,6 +30,11 @@ void GameObject::AddRigidbody(float mass)
 	rigidbody = new RigidbodyComponent(mass);
 }
 
+void GameObject::AddMovementComponent(float* ptr)
+{
+	movementComponent = new MovementComponent(ptr);
+}
+
 MeshComponent* GameObject::GetMeshComponent()
 {
 	return meshComponent;
@@ -42,6 +48,11 @@ CameraComponent* GameObject::GetCameraComponent()
 LightComponent* GameObject::GetLightComponent()
 {
 	return lightComponent;
+}
+
+MovementComponent* GameObject::GetMoveComponent()
+{
+	return movementComponent;
 }
 
 RigidbodyComponent* GameObject::GetRigidbody()
@@ -84,36 +95,28 @@ void GameObject::SetRotation(const XMMATRIX& newRot)
 
 void GameObject::Update(float dt)
 {
+	if (cameraComponent)
+	{
+		VECTOR2 mouseMovement = InputManager::Instance()->GetMouseMovement();
+		if (mouseMovement.x != 0 && mouseMovement.y != 0)
+		{
+			VECTOR3 currentRot = cameraComponent->GetRotation();
+			VECTOR3 newRot =
+				{
+					currentRot.x ,
+					currentRot.y + mouseMovement.x * dt * 2,
+					currentRot.z
+				};
+			cameraComponent->SetRotation(newRot);
+		}
 
+	}
+	if (movementComponent)
+	{
+		movementComponent->Update(dt, rigidbody);
+	}
 	if (rigidbody)
 	{
-		float speed = 3.0f;
-		float move = speed * dt;
-		InputManager* inputManager = InputManager::Instance();
-		if ((int)inputManager->GetKeyState(VK_DOWN) > 0)
-		{
-			rigidbody->SetXVelocity(-1);
-		}
-		else if ((int)inputManager->GetKeyState(VK_UP) > 0)
-		{
-			rigidbody->SetXVelocity(1);
-		}
-		else
-		{
-			rigidbody->SetXVelocity(0);
-		}
-		if ((int)inputManager->GetKeyState(VK_LEFT) > 0)
-		{
-			rigidbody->SetZVelocity(1);
-		}
-		else if ((int)inputManager->GetKeyState(VK_RIGHT) > 0)
-		{
-			rigidbody->SetZVelocity(-1);
-		}
-		else
-		{
-			rigidbody->SetZVelocity(0);
-		}
 		rigidbody->Update(dt, position);
 
 		SetRotation(rotation * XMMatrixRotationX(rigidbody->GetVelocity().z * 0.005f) * XMMatrixRotationZ(-rigidbody->GetVelocity().x * 0.005f));

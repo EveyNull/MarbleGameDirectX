@@ -3,7 +3,7 @@
 RigidbodyComponent::RigidbodyComponent(float newMass)
 {
 	mass = newMass;
-	velocity = { 0, -1, 0 };
+	velocity = { 0, 0, 0 };
 	angularVelocity = { 0, 0, 0 };
 	force = { 0, 0, 0 };
 	torque = { 0, 0, 0 };

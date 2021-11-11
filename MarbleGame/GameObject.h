@@ -3,6 +3,7 @@
 #include "CameraComponent.h"
 #include "LightComponent.h"
 #include "RigidbodyComponent.h"
+#include "MovementComponent.h"
 
 class GameObject
 {
@@ -14,10 +15,12 @@ public:
 	void AddCameraComponent();
 	void AddLightComponent(XMVECTOR);
 	void AddRigidbody(float);
+	void AddMovementComponent(float*);
 
 	MeshComponent* GetMeshComponent();
 	CameraComponent* GetCameraComponent();
 	LightComponent* GetLightComponent();
+	MovementComponent* GetMoveComponent();
 	RigidbodyComponent* GetRigidbody();
 
 	void SetPosition(VECTOR3);
@@ -31,6 +34,7 @@ private:
 	CameraComponent* cameraComponent;
 	LightComponent* lightComponent;
 	RigidbodyComponent* rigidbody;
+	MovementComponent* movementComponent;
 
 	VECTOR3 position;
 	XMMATRIX rotation;

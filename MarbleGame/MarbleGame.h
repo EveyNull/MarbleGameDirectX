@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+#include "AudioManager.h"
 #include "Renderer.h"
 #include "InputManager.h"
 #include "Scene.h"
@@ -24,6 +25,7 @@ public:
 private:
 	Renderer* renderer;
 	InputManager* inputManager;
+	AudioManager* audioManager;
 
 	Window* mainWindow;
 	Scene* scene;
@@ -37,6 +39,10 @@ private:
 	unsigned long long prevTime = 0;
 
 	void InitWindow(HINSTANCE&);
+	void SetUpMouseMovement();
+	void AddKeyMappings();
+
+	int currentLevel = 1;
 };
 
 static LRESULT CALLBACK WindowProc(HWND, UINT, WPARAM, LPARAM);

@@ -34,6 +34,7 @@ bool CollisionManager::CheckSphereOnMeshes(GameObject* sphere, VECTOR3& outNorma
 				vertices[indices[j+2]]
 			};
 
+			// Separating axis testing from https://realtimecollisiondetection.net/blog/?p=103
 			bool collidedTri = false;
 
 			VECTOR3 point1 = tri[0].position + staticGeometry[i]->GetPosition();

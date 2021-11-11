@@ -4,6 +4,8 @@
 #include <vector>
 #include <algorithm>
 #include <ctime>
+#include <windowsx.h>
+#include <CoreWindow.h>
 
 
 MarbleGame::~MarbleGame()
@@ -34,14 +36,28 @@ bool MarbleGame::Init(HINSTANCE& hInt, LPSTR& lpStr)
 
 	VECTOR2 windowSize = mainWindow->GetWindowSize();
 
-	int window_width = windowSize.x;
-	int window_height = windowSize.y;
+	window_width = windowSize.x;
+	window_height = windowSize.y;
+	ShowCursor(false);
+
+	LONG lStyle = GetWindowLong(mainWindow->GetHandler(), GWL_STYLE);
+	lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+	SetWindowLongPtr(mainWindow->GetHandler(), GWL_STYLE, lStyle);
 
 	renderer->Init(mainWindow->GetHandler(), window_width, window_height, full_screen);
 
 	inputManager = new InputManager();
 
-	scene = new Scene(mainWindow->GetHandler(), renderer->GetRenderDevice());
+	SetUpMouseMovement();
+	AddKeyMappings();
+
+	audioManager = new AudioManager(2);
+	audioManager->LoadWav("go.wav", 0);
+	audioManager->LoadWav("cheer.wav", 1);
+
+	scene = new Scene(mainWindow->GetHandler(), renderer->GetRenderDevice(), 1);
+
+	audioManager->PlayWav(0);
 
 	return true;
 }
@@ -52,7 +68,7 @@ void MarbleGame::Run()
 
 	bool running = true;
 	std::clock_t start = std::clock();
-	prevTime = start;
+	prevTime = 0;
 
 	while (running)
 	{
@@ -65,16 +81,34 @@ void MarbleGame::Run()
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		if (inputManager->GetKeyState(VK_ESCAPE) == KeyState::DOWN)
+		if ((int)inputManager->GetControlState(InputAxis::ESCAPE) > 0)
 		{
 			PostQuitMessage(0);
 		}
+		VECTOR2 mousePos = inputManager->GetDefaultMousePos();
+		SetCursorPos(mousePos.x, mousePos.y);
+
 		unsigned long long currentTime = std::clock() - start;
-		float test = (currentTime - prevTime);
-		scene->Update(test * 0.001f);
+		float deltaTime = (currentTime - prevTime);
+
+		bool changingLevel = false;
+		if (scene->Update(deltaTime * 0.001f))
+		{
+			currentLevel++;
+			changingLevel = true;
+		}
 
 		prevTime = currentTime;
 		scene->Render(renderer);
+
+		if (changingLevel)
+		{
+			delete scene;
+			scene = new Scene(mainWindow->GetHandler(), renderer->GetRenderDevice(), currentLevel);
+			audioManager->PlayWav(1);
+			start = std::clock();
+			prevTime = 0;
+		}
 	}
 }
 
@@ -99,12 +133,23 @@ LRESULT CALLBACK MarbleGame::HandleMessage(
 	{
 		case WM_KEYUP:
 		{
-			InputManager::Instance()->SetKey((unsigned int)wParam, KeyState::UP);
+			InputManager::Instance()->SetAxis((unsigned int)wParam, KeyState::UP);
 			break;
 		}
 		case WM_KEYDOWN:
 		{
-			InputManager::Instance()->SetKey((unsigned int)wParam, KeyState::DOWN);
+			InputManager::Instance()->SetAxis((unsigned int)wParam, KeyState::DOWN);
+			break;
+		}
+		case WM_MOUSEMOVE:
+		{
+			VECTOR2 mouseMove =
+			{
+				(float)GET_X_LPARAM(lParam),
+				(float)GET_Y_LPARAM(lParam)
+			};
+			InputManager::Instance()->SetMouseMovement(mouseMove);
+			break;
 		}
 	}
 	return DefWindowProc(hWnd, message, wParam, lParam);
@@ -128,5 +173,33 @@ LRESULT CALLBACK WindowProc(HWND hWnd,
 			return _Game->HandleMessage(hWnd, message, wParam, lParam);
 		}
 	}
+
+}
+
+void MarbleGame::AddKeyMappings()
+{
+	inputManager->AddInputMapping(VK_UP, InputAxis::VERTICAL, 1);
+	inputManager->AddInputMapping(0x57, InputAxis::VERTICAL, 1);
+	inputManager->AddInputMapping(VK_DOWN, InputAxis::VERTICAL, -1);
+	inputManager->AddInputMapping(0x53, InputAxis::VERTICAL, -1);
+	inputManager->AddInputMapping(VK_RIGHT, InputAxis::HORIZONTAL, 1);
+	inputManager->AddInputMapping(0x44, InputAxis::HORIZONTAL, 1);
+	inputManager->AddInputMapping(VK_LEFT, InputAxis::HORIZONTAL, -1);
+	inputManager->AddInputMapping(0x41, InputAxis::HORIZONTAL, -1);
+	inputManager->AddInputMapping(VK_ESCAPE, InputAxis::ESCAPE, 1);
+	inputManager->AddInputMapping(VK_SPACE, InputAxis::JUMP, 1);
+}
+
+void MarbleGame::SetUpMouseMovement()
+{
+	RECT windowPos;
+	GetWindowRect(mainWindow->GetHandler(), &windowPos);
+	VECTOR2 mousePos =
+	{
+		windowPos.left + window_width * 0.5f,
+		 windowPos.top + window_height * 0.5f
+	};
+	inputManager->SetDefaultMousePos(mousePos, { 0.5f * (windowPos.right - windowPos.left), (float)window_height / 2 });
+	SetCursorPos(mousePos.x, mousePos.y);
 
 }

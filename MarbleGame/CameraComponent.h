@@ -10,11 +10,15 @@ public:
 	CameraComponent();
 	~CameraComponent() = default;
 
+	void SetLocalPosition(XMMATRIX);
 	void SetPosition(XMVECTOR);
 
 	XMVECTOR GetPosition();
 	
 	void SetRotation(VECTOR3);
+	VECTOR3 GetRotation();
+
+	float* GetYawPtr();
 
 	void Update(float dt);
 	bool Render();
@@ -26,6 +30,7 @@ public:
 private:
 	XMVECTOR camPos;
 	XMVECTOR camUp;
+	XMVECTOR camLocalPos;
 	XMMATRIX viewMatrix;
 	XMMATRIX perspMatrix;
 

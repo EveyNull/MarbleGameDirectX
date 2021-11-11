@@ -4,6 +4,15 @@ struct VECTOR2
 {
 	float x;
 	float y;
+	
+	VECTOR2 operator-(const VECTOR2& vector)
+	{
+		return
+		{
+			x - vector.x,
+			y - vector.y
+		};
+	}
 };
 
 struct VECTOR3

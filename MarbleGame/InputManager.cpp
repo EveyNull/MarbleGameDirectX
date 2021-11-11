@@ -1,4 +1,5 @@
 #include "InputManager.h"
+#include "MathHelper.h"
 
 InputManager* InputManager::instance;
 
@@ -12,17 +13,46 @@ InputManager::InputManager()
 	instance = this;
 }
 
-void InputManager::SetKey(unsigned int key, KeyState state)
+void InputManager::AddInputMapping(unsigned int key, InputAxis axis, int state)
 {
-	keyMap[key] = state;
+	keyMap[key] = std::pair<InputAxis, int>{axis, state};
 }
 
-KeyState InputManager::GetKeyState(unsigned int key)
+void InputManager::SetDefaultMousePos(const VECTOR2& screen, const VECTOR2& window)
 {
-	auto it = keyMap.find(key);
-	if (it != keyMap.end())
+	screenMouseCenter = screen;
+	windowMouseCenter = window;
+}
+
+void InputManager::SetAxis(unsigned int key, KeyState state)
+{
+	if (keyMap.count(key))
 	{
-		return it->second;
+		InputAxis axis = keyMap[key].first;
+		inputMap[axis] = (state == KeyState::DOWN ? keyMap[key].second : 0);
 	}
-	return KeyState::UP;
+}
+
+void InputManager::SetMouseMovement(const VECTOR2& movement)
+{
+	mouseMovement = windowMouseCenter - movement;
+}
+
+VECTOR2 InputManager::GetDefaultMousePos()
+{
+	return screenMouseCenter;
+}
+
+int InputManager::GetControlState(InputAxis axis)
+{
+	if (inputMap.count(axis))
+	{
+		return inputMap[axis];
+	}
+	return 0;
+}
+
+VECTOR2 InputManager::GetMouseMovement()
+{
+	return mouseMovement;
 }

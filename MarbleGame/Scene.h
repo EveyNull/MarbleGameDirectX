@@ -6,9 +6,9 @@
 class Scene
 {
 public:
-	Scene(HWND hWnd, ID3D11Device* device);
+	Scene(HWND hWnd, ID3D11Device* device, int sceneNumber);
 	~Scene();
-	void Update(float dt);
+	bool Update(float dt);
 	void Render(Renderer*);
 private:
 	GameObject* skyBox;
@@ -20,5 +20,7 @@ private:
 	int geometryNumber;
 
 	CollisionManager* collisionManager;
+
+	int sceneNumber;
 };
 
