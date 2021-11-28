@@ -69,7 +69,7 @@ void AudioManager::LoadWav(const char* fileName, int index)
 	waveFormat.cbSize = 0;
 
 	bufferDesc.dwSize = sizeof(DSBUFFERDESC);
-	bufferDesc.dwFlags = DSBCAPS_CTRLVOLUME;
+	bufferDesc.dwFlags = DSBCAPS_GLOBALFOCUS | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY;
 	bufferDesc.dwBufferBytes = waveFileHeader.dataSize;
 	bufferDesc.dwReserved = 0;
 	bufferDesc.lpwfxFormat = &waveFormat;
@@ -78,8 +78,10 @@ void AudioManager::LoadWav(const char* fileName, int index)
 	HRESULT result;
 
 	result = directSound->CreateSoundBuffer(&bufferDesc, &tempBuffer, NULL);
+	if (FAILED(result)) return;
 	result = tempBuffer->QueryInterface(IID_IDirectSoundBuffer8, (void**)&*secondaryBuffer);
-	
+	if (FAILED(result)) return;
+
 	tempBuffer->Release();
 
 	fseek(file, sizeof(WaveHeaderType), SEEK_SET);
@@ -96,17 +98,24 @@ void AudioManager::LoadWav(const char* fileName, int index)
 		return;
 	}
 	result = fclose(file);
+	if (FAILED(result)) return;
 
 	result = (*secondaryBuffer)->Lock(0, waveFileHeader.dataSize, (void**)&bufferPtr, (DWORD*)&bufferSize, NULL, 0, 0);
+	if (FAILED(result)) return;
 	memcpy(bufferPtr, waveData, waveFileHeader.dataSize);
 	result = (*secondaryBuffer)->Unlock((void*)bufferPtr, bufferSize, NULL, 0);
+	if (FAILED(result)) return;
 
 	delete[] waveData;
 }
 
-void AudioManager::PlayWav(int index)
+void AudioManager::PlayWav(int index, float volume, float freq)
 {
 	secondaryBuffers[index]->SetCurrentPosition(0);
-	secondaryBuffers[index]->SetVolume(DSBVOLUME_MAX);
+	secondaryBuffers[index]->SetVolume(volume);
+	if (freq != 0)
+	{
+		secondaryBuffers[index]->SetFrequency(freq);
+	}
 	secondaryBuffers[index]->Play(0, 0, 0);
 }

@@ -8,12 +8,9 @@ public:
 	CollisionManager(GameObject** geometry, int);
 	~CollisionManager() = default;
 	
-	bool CheckSphereOnMeshes(GameObject* sphere, VECTOR3& outNormal, VECTOR3& collisionPoint);
+	int CheckSphereOnMeshes(GameObject* sphere, VECTOR3& outNormal, GameObject**& collidedObjects);
 private:
 	GameObject** staticGeometry;
 	int geometryNumber;
-
-	bool SphereOnMeshCollision(MeshComponent* sphereMesh, MeshComponent* meshOther, VECTOR3& outNormal);
-	bool SphereOnTriangleCollision(MeshComponent* sphereMesh, VECTOR3* triangle, VECTOR3& outNormal);
 };
 

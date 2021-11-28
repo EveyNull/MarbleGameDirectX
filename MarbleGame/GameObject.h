@@ -5,10 +5,23 @@
 #include "RigidbodyComponent.h"
 #include "MovementComponent.h"
 
+enum class ObjectType
+{
+	NONE = 0,
+	SPHERE = 1,
+	CUBE = 2,
+	SLOPE = 3,
+	SLOPE90 = 4,
+	SLOPE180 = 5,
+	SLOPE270 = 6,
+	GOAL = 7,
+};
+
 class GameObject
 {
 public:
 	GameObject();
+	GameObject(int);
 	~GameObject() = default;
 
 	void AddMeshComponent(HWND, ID3D11Device*);
@@ -23,6 +36,8 @@ public:
 	MovementComponent* GetMoveComponent();
 	RigidbodyComponent* GetRigidbody();
 
+	ObjectType GetObjectType();
+
 	void SetPosition(VECTOR3);
 	void SetRotation(const XMMATRIX&);
 
@@ -30,6 +45,9 @@ public:
 
 	void Update(float dt);
 private:
+
+	ObjectType type = ObjectType::NONE;
+
 	MeshComponent* meshComponent;
 	CameraComponent* cameraComponent;
 	LightComponent* lightComponent;

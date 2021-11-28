@@ -12,7 +12,7 @@ SamplerState SkyBoxSampler
 
 cbuffer SkyboxBuffer
 {
-	matrix worldBuffer;
+	matrix translationMatrix;
 	matrix viewBuffer;
 	matrix projectionBuffer;
 };
@@ -34,7 +34,7 @@ SkyboxPixelInput SkyboxVertexShader(SkyboxVertexInput input)
 	SkyboxPixelInput output;
 
 
-	matrix WVP = mul(viewBuffer, projectionBuffer);
+	matrix WVP = mul(mul(translationMatrix, viewBuffer), projectionBuffer);
 
 	output.position = mul(input.position, WVP);
 

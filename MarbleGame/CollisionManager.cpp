@@ -11,14 +11,14 @@ CollisionManager::CollisionManager(GameObject** geometry, int geometryCount)
 	geometryNumber = geometryCount;
 }
 
-bool CollisionManager::CheckSphereOnMeshes(GameObject* sphere, VECTOR3& outNormal, VECTOR3& collisionPoint)
+int CollisionManager::CheckSphereOnMeshes(GameObject* sphere, VECTOR3& outNormal, GameObject**& collidedObjects)
 {
 	outNormal = { 0,0,0 };
 	float sphereRadius = sphere->GetMeshComponent()->GetVertices()[0].position.y;
-	VECTOR3 spherePos = sphere->GetPosition();
-
+	VECTOR3 spherePosV3 = sphere->GetPosition();
+	XMVECTOR spherePos = { spherePosV3.x, spherePosV3.y, spherePosV3.z };
 	int numCollisions = 0;
-	
+
 	for (int i = 0; i < geometryNumber; ++i)
 	{
 		int trisCollided = 0;
@@ -37,13 +37,28 @@ bool CollisionManager::CheckSphereOnMeshes(GameObject* sphere, VECTOR3& outNorma
 			// Separating axis testing from https://realtimecollisiondetection.net/blog/?p=103
 			bool collidedTri = false;
 
-			VECTOR3 point1 = tri[0].position + staticGeometry[i]->GetPosition();
-			VECTOR3 point2 = tri[1].position + staticGeometry[i]->GetPosition();
-			VECTOR3 point3 = tri[2].position + staticGeometry[i]->GetPosition();
+			XMMATRIX rotationMatrix = mesh->GetRotationMatrix();
+			VECTOR3 objPosition = staticGeometry[i]->GetPosition();
+			XMVECTOR xmPosition;
+			xmPosition = { objPosition.x, objPosition.y, objPosition.z };
+			
+			XMVECTOR tri0, tri1, tri2;
+			tri0 = { tri[0].position.x, tri[0].position.y, tri[0].position.z };
+			tri1 = { tri[1].position.x, tri[1].position.y, tri[1].position.z };
+			tri2 = { tri[2].position.x, tri[2].position.y, tri[2].position.z };
 
-			VECTOR3 v1 = point1 - spherePos;
-			VECTOR3 v2 = point2 - spherePos;
-			VECTOR3 v3 = point3 - spherePos;
+			XMVECTOR point1 = XMVector3TransformCoord(tri0, rotationMatrix) + xmPosition;
+			XMVECTOR point2 = XMVector3TransformCoord(tri1, rotationMatrix) + xmPosition;
+			XMVECTOR point3 = XMVector3TransformCoord(tri2, rotationMatrix) + xmPosition;
+
+			VECTOR3 v1, v2, v3;
+			XMFLOAT3 temp1, temp2, temp3;
+			XMStoreFloat3(&temp1, point1 - spherePos);
+			XMStoreFloat3(&temp2, point2 - spherePos);
+			XMStoreFloat3(&temp3, point3 - spherePos);
+			v1 = { temp1.x, temp1.y, temp1.z };
+			v2 = { temp2.x, temp2.y, temp2.z };
+			v3 = { temp3.x, temp3.y, temp3.z };
 
 			XMVECTOR cross1 = { (v2 - v1).x, (v2 - v1).y, (v2 - v1).z };
 			XMVECTOR cross2 = { (v3 - v1).x, (v3 - v1).y, (v3 - v1).z };
@@ -107,11 +122,24 @@ bool CollisionManager::CheckSphereOnMeshes(GameObject* sphere, VECTOR3& outNorma
 				XMFLOAT3 float3;
 				XMStoreFloat3(&float3, normal);
 				outNormal += { float3.x, float3.y, float3.z };
-				VECTOR3 avg = { (v1.x + v2.x + v3.x) / 3, (v1.y + v2.y + v3.y) / 3, (v1.z + v2.z + v3.z) / 3 };
 
 				numCollisions++;
-
-				collisionPoint += avg;
+				if (numCollisions == 1)
+				{
+					collidedObjects = new GameObject*[1];
+					collidedObjects[0] = staticGeometry[i];
+				}
+				else
+				{
+					GameObject** buffer = new GameObject*[numCollisions];
+					for (int i = 0; i < numCollisions -1; ++i)
+					{
+						buffer[i] = collidedObjects[i];
+					}
+					buffer[numCollisions - 1] = staticGeometry[i];
+					delete[] collidedObjects;
+					collidedObjects = buffer;
+				}
 			}
 		}
 	}
@@ -121,9 +149,9 @@ bool CollisionManager::CheckSphereOnMeshes(GameObject* sphere, VECTOR3& outNorma
 		{
 			outNormal /= numCollisions;
 		}
-		return true;
+		return numCollisions;
 	}
-	return false;
+	return 0;
 }
 
 float Dot(const XMVECTOR& a, const XMVECTOR& b)

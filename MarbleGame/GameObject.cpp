@@ -9,6 +9,12 @@ GameObject::GameObject()
 	rotation = XMMatrixIdentity();
 }
 
+GameObject::GameObject(int objType)
+{
+	type = (ObjectType)objType;
+	GameObject();
+}
+
 void GameObject::AddMeshComponent(HWND hWnd, ID3D11Device* device)
 {
 	meshComponent = new MeshComponent(hWnd);
@@ -58,6 +64,11 @@ MovementComponent* GameObject::GetMoveComponent()
 RigidbodyComponent* GameObject::GetRigidbody()
 {
 	return rigidbody;
+}
+
+ObjectType GameObject::GetObjectType()
+{
+	return type;
 }
 
 VECTOR3 GameObject::GetPosition()

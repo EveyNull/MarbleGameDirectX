@@ -74,7 +74,7 @@ void MovementComponent::Update(float dt, RigidbodyComponent* rigidbody)
 
 
 
-	if ((int)inputManager->GetControlState(InputAxis::JUMP) > 0 && rigidbody->GetVelocity().y < 1.0f && canJump)
+	if ((int)inputManager->GetControlState(InputAxis::JUMP) > 0 && rigidbody->GetVelocity().y < 2.0f && canJump)
 	{
 		canJump = false;
 		rigidbody->SetYVelocity(2400 * dt);

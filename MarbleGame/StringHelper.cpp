@@ -17,6 +17,10 @@ StringHelper::split(const std::string& string, std::string delimiter)
         previous = current + 1;
         current = string.find(delimiter, previous);
     }
+    if (previous < string.size())
+    {
+        results.emplace_back(string.substr(previous, string.size() - previous));
+    }
     return results;
 }
 

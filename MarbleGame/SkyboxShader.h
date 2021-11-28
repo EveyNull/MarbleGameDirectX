@@ -7,7 +7,7 @@ using namespace DirectX;
 
 struct SkyboxMatrixBufferType
 {
-	XMMATRIX world;
+	XMMATRIX translation;
 	XMMATRIX view;
 	XMMATRIX projection;
 };
@@ -20,7 +20,7 @@ public:
 	~SkyboxShader();
 
 	bool InitSkybox(ID3D11Device*, HWND);
-	bool Render(ID3D11DeviceContext*, int, XMMATRIX&, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*);
+	bool Render(ID3D11DeviceContext*, int, const XMMATRIX&, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView*);
 
 private:
 

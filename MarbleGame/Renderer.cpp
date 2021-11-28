@@ -55,7 +55,7 @@ void Renderer::Init(HWND hWnd, int& width, int& height, bool fullScreen)
 		NULL,
 		D3D_DRIVER_TYPE_HARDWARE,
 		NULL,
-		NULL,
+		D3D11_CREATE_DEVICE_BGRA_SUPPORT,
 		NULL,
 		NULL,
 		D3D11_SDK_VERSION,
@@ -177,7 +177,7 @@ void Renderer::Render(CameraComponent* camera, std::vector<MeshComponent*>& mesh
 	camera->Render();
 
 	mesh[0]->Render(context);
-	skyboxShader->Render(context, mesh[0]->GetIndexCount(), worldMatrix, *camera->GetViewMatrix(), m_projectionMatrix, mesh[0]->GetTexture());
+	skyboxShader->Render(context, mesh[0]->GetIndexCount(), mesh[0]->GetTranslationMatrix(), *camera->GetViewMatrix(), m_projectionMatrix, mesh[0]->GetTexture());
 
 	for (int i = 1; i < mesh.size(); ++i)
 	{
@@ -192,8 +192,6 @@ void Renderer::Render(CameraComponent* camera, std::vector<MeshComponent*>& mesh
 		}
 		currMesh = nullptr;
 	}
-	swapChain->Present(0, 0);
-
 }
 
 ID3D11Device* Renderer::GetRenderDevice()
@@ -204,4 +202,16 @@ ID3D11Device* Renderer::GetRenderDevice()
 ID3D11DeviceContext* Renderer::GetDeviceContext()
 {
 	return context;
+}
+
+IDXGISurface* Renderer::GetBackBufferDXGISurface()
+{
+	IDXGISurface* buffer;
+	swapChain->GetBuffer(0, IID_PPV_ARGS(&buffer));
+	return buffer;
+}
+
+void Renderer::Present()
+{
+	swapChain->Present(0, 0);
 }

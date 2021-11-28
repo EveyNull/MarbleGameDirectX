@@ -14,6 +14,11 @@ void Texture::InitTexture(ID3D11Device* device, const wchar_t* fileName)
 	}
 }
 
+void Texture::InitTexture(ID3D11Device* device, ID3D11ShaderResourceView* texture)
+{
+	textureView = texture;
+}
+
 ID3D11ShaderResourceView* Texture::GetTexture()
 {
 	return textureView;

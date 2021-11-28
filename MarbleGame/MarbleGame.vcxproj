@@ -146,6 +146,7 @@
     <ClCompile Include="CameraComponent.cpp" />
     <ClCompile Include="CollisionComponent.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
+    <ClCompile Include="Image.cpp" />
     <ClCompile Include="LevelLoader.cpp" />
     <ClCompile Include="LightComponent.cpp" />
     <ClCompile Include="MathHelper.cpp" />
@@ -161,7 +162,9 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SkyboxShader.cpp" />
     <ClCompile Include="StringHelper.cpp" />
+    <ClCompile Include="Text.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="UIManager.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -169,6 +172,7 @@
     <ClInclude Include="CameraComponent.h" />
     <ClInclude Include="CollisionComponent.h" />
     <ClInclude Include="CollisionManager.h" />
+    <ClInclude Include="Image.h" />
     <ClInclude Include="LevelLoader.h" />
     <ClInclude Include="LightComponent.h" />
     <ClInclude Include="MathHelper.h" />
@@ -183,7 +187,9 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SkyboxShader.h" />
     <ClInclude Include="StringHelper.h" />
+    <ClInclude Include="Text.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="UIManager.h" />
     <ClInclude Include="Vector.h" />
     <ClInclude Include="VertexConfig.h" />
     <ClInclude Include="Window.h" />

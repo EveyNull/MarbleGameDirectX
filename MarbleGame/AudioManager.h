@@ -28,7 +28,7 @@ public:
 	AudioManager(int number);
 	~AudioManager() = default;
 	void LoadWav(const char* wavName, int index);
-	void PlayWav(int index);
+	void PlayWav(int index, float, float);
 
 private:
 	IDirectSound8* directSound;

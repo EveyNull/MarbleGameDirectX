@@ -18,6 +18,7 @@ public:
 	MeshComponent(HWND& hWnd);
 	~MeshComponent();
 	void MakeCube(ID3D11Device*, float, float, float);
+	void MakeSlope(ID3D11Device*, float, float, float);
 	void MakeSphere(ID3D11Device*, float, int);
 
 	void Render(ID3D11DeviceContext*);
@@ -26,6 +27,7 @@ public:
 	void RotateMesh(const XMMATRIX& rotation);
 
 	void LoadTexture(ID3D11Device*, const wchar_t*);
+	void LoadTexture(ID3D11Device* device, ID3D11ShaderResourceView* resource);
 	ID3D11ShaderResourceView* GetTexture();
 
 	VertexConfig* GetVertices();

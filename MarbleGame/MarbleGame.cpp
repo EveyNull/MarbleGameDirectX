@@ -51,13 +51,14 @@ bool MarbleGame::Init(HINSTANCE& hInt, LPSTR& lpStr)
 	SetUpMouseMovement();
 	AddKeyMappings();
 
-	audioManager = new AudioManager(2);
+	audioManager = new AudioManager(3);
 	audioManager->LoadWav("go.wav", 0);
 	audioManager->LoadWav("cheer.wav", 1);
+	audioManager->LoadWav("fall.wav", 2);
 
-	scene = new Scene(mainWindow->GetHandler(), renderer->GetRenderDevice(), 1);
+	uiManager = new UIManager(renderer);
+	uiManager->UpdateText(L"PRESS SPACE TO START");
 
-	audioManager->PlayWav(0);
 
 	return true;
 }
@@ -90,22 +91,54 @@ void MarbleGame::Run()
 
 		unsigned long long currentTime = std::clock() - start;
 		float deltaTime = (currentTime - prevTime);
-
+		
+		int sceneChange = 0;
 		bool changingLevel = false;
-		if (scene->Update(deltaTime * 0.001f))
+		if (scene)
 		{
-			currentLevel++;
-			changingLevel = true;
-		}
+			sceneChange = scene->Update(deltaTime * 0.001f);
+			if (sceneChange != currentLevel)
+			{
+				currentLevel = sceneChange;
+				changingLevel = true;
+			}
 
-		prevTime = currentTime;
-		scene->Render(renderer);
+			prevTime = currentTime;
+			scene->Render(renderer);
+		}
+		else
+		{
+			if (inputManager->GetControlState(InputAxis::JUMP))
+			{
+				currentLevel = 1;
+				changingLevel = true;
+				sceneChange = 1;
+				uiManager->UpdateLives();
+			}
+		}
+		uiManager->RenderUI(currentLevel == 0);
+		renderer->Present();
 
 		if (changingLevel)
 		{
 			delete scene;
-			scene = new Scene(mainWindow->GetHandler(), renderer->GetRenderDevice(), currentLevel);
-			audioManager->PlayWav(1);
+			if (sceneChange > 0)
+			{
+				scene = new Scene(mainWindow->GetHandler(), renderer->GetRenderDevice(), currentLevel, audioManager, uiManager);
+				if (sceneChange > 1)
+				{
+					audioManager->PlayWav(1, 0.0f, 0);
+				}
+				else
+				{
+					audioManager->PlayWav(0, 0.0f, 0);
+				}
+			}
+			else
+			{
+				scene = nullptr;
+				uiManager->UpdateText(L"PRESS SPACE TO START");
+			}
 			start = std::clock();
 			prevTime = 0;
 		}

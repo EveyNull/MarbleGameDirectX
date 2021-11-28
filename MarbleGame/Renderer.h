@@ -26,6 +26,8 @@ public:
 	void Render(CameraComponent*, std::vector<MeshComponent*>&, LightComponent*);
 	ID3D11Device* GetRenderDevice();
 	ID3D11DeviceContext* GetDeviceContext();
+	IDXGISurface* GetBackBufferDXGISurface();
+	void Present();
 
 private:
 	static Renderer* instance;

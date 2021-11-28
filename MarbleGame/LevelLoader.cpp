@@ -16,7 +16,7 @@ GameObject** LevelLoader::LoadLevel(int levelNumber, int& outGeometryNumber)
 
 	int lineNumber = 0;
 
-	auto levelMap = new std::vector<std::pair<VECTOR2, int>>();
+	auto levelMap = new std::vector<std::tuple<VECTOR2, int, int>>();
 	int blocksTotal = 0;
 
 	while (getline(levelFile, fileText))
@@ -26,11 +26,14 @@ GameObject** LevelLoader::LoadLevel(int levelNumber, int& outGeometryNumber)
 		
 		for(int i = 0; i < (int)line.size(); ++i)
 		{
-			int unit = std::stoi(line[i]);
+			auto splitEntry = StringHelper::split(line[i], ":");
+			int unit = std::stoi(splitEntry[0]);
 			if (unit > 0)
 			{
 				VECTOR2 coords = { i, lineNumber };
-				auto entry = std::pair<VECTOR2, int>(coords, unit);
+				int type = 2;
+				if (splitEntry.size() > 1) type = std::stoi(splitEntry[1]);
+				auto entry = std::tuple<VECTOR2, int, int>(coords, unit, type);
 				levelMap->push_back(entry);
 				if (unit > highestNumber)
 				{
@@ -59,7 +62,9 @@ GameObject** LevelLoader::LoadLevel(int levelNumber, int& outGeometryNumber)
 	for (auto itr = levelMap->begin(); itr != levelMap->end(); ++itr)
 	{
 		int* values = new int[bitNumber];
-		int decimal = itr->second;
+		VECTOR2 location = std::get<0>(*itr);
+		int decimal = std::get<1>(*itr);
+		int type = std::get<2>(*itr);
 		
 		MathHelper::BinarySeparateInts(values, decimal, bitNumber);
 
@@ -67,8 +72,8 @@ GameObject** LevelLoader::LoadLevel(int levelNumber, int& outGeometryNumber)
 		{
 			if (values[i] == 1)
 			{
-				GameObject* gameObject = new GameObject();
-				gameObject->SetPosition({ itr->first.x, -(float)(bitNumber - i), -itr->first.y });
+				GameObject* gameObject = new GameObject(type);
+				gameObject->SetPosition({ location.x, -(float)(bitNumber - i), -location.y });
 				levelBlocks[numBlocks++] = gameObject;
 			}
 		}

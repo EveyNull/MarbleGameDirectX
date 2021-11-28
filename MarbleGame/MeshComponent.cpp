@@ -85,6 +85,119 @@ void MeshComponent::MakeCube(ID3D11Device* device, float height, float width, fl
 	InitBuffers(device, vertices, indices);
 }
 
+// I would have refactored this to not copy the whole cube code haha
+void MeshComponent::MakeSlope(ID3D11Device* device, float height, float width, float length)
+{
+	VECTOR3 FBL = { -height / 2, -width / 2, length / 2 };
+	VECTOR3 FTL = { -height / 2, width / 2, length / 2 };
+	VECTOR3 FTR = { height / 2, -width / 2 + 0.01f, length / 2 };
+	VECTOR3 FBR = { height / 2, -width / 2, length / 2 };
+	VECTOR3 BBL = { -height / 2, -width / 2, -length / 2 };
+	VECTOR3 BTL = { -height / 2, width / 2, -length / 2 };
+	VECTOR3 BTR = { height / 2, -width / 2 + 0.01f, -length / 2 };
+	VECTOR3 BBR = { height / 2, -width / 2, -length / 2 };
+
+	VECTOR3 cube_data[] =
+	{
+
+		// Top face - 0
+		FTL, BTL, BTR,
+		BTR, FTR, FTL,
+
+
+		// Bottom Face - 1
+		BBL, FBL, FBR,
+		FBR, BBR, BBL,
+
+		// Left face - 2
+		BBL, BTL, FTL,
+		FTL, FBL, BBL,
+
+		//Front face - 3
+		FBL, FTL, FTR,
+		FTR, FBR, FBL,
+
+		// Right face - 4
+		FBR, FTR, BTR,
+		BTR, BBR, FBR,
+
+		// Back face - 5
+		BBR, BTR, BTL,
+		BTL, BBL, BBR,
+	};
+
+	VECTOR3 normals[] =
+	{
+		// Top face - 0
+		FTL, BTL, { height / 2, width / 2, -length / 2 },
+		{ height / 2, width / 2, -length / 2 }, { height / 2, width / 2, length / 2 }, FTL,
+
+
+		// Bottom Face - 1
+		BBL, FBL, FBR,
+		FBR, BBR, BBL,
+
+		// Left face - 2
+		BBL, BTL, FTL,
+		FTL, FBL, BBL,
+
+		//Front face - 3
+		FBL, FTL, { height / 2, width / 2, length / 2 },
+		{ height / 2, width / 2, length / 2 }, FBR, FBL,
+
+		// Right face - 4
+		FBR, { height / 2, width / 2, length / 2 }, { height / 2, width / 2, -length / 2 },
+		{ height / 2, width / 2, -length / 2 }, BBR, FBR,
+
+		// Back face - 5
+		BBR, { height / 2, width / 2, -length / 2 }, BTL,
+		BTL, BBL, BBR,
+	};
+
+	vertices = new VertexConfig[36];
+
+
+	int face = 0;
+	for (int i = 0; i < 36; ++i)
+	{
+		vertices[i].position = cube_data[i];
+		vertices[i].normal = normals[i];
+
+		if (face == 0)
+		{
+			if (i % 6 == 0 || i % 6 == 5) vertices[i].textureUV = { 0.25f, 1.0f / 3.0f };
+			else if (i % 6 == 1) vertices[i].textureUV = { 0.25f, 0.0f };
+			else if (i % 6 == 2 || i % 6 == 3) vertices[i].textureUV = { 0.5f, 0.0f };
+			else vertices[i].textureUV = { 0.5f, 1.0f / 3.0f };
+		}
+		else if (face == 1)
+		{
+			if (i % 6 == 0 || i % 6 == 5) vertices[i].textureUV = { 0.25f, 1.0f };
+			else if (i % 6 == 1) vertices[i].textureUV = { 0.25f, 2.0f / 3.0f };
+			else if (i % 6 == 2 || i % 6 == 3) vertices[i].textureUV = { 0.5f, 2.0f / 3.0f };
+			else vertices[i].textureUV = { 0.5f, 1.0f };
+		}
+		else
+		{
+			if (i % 6 == 0 || i % 6 == 5) vertices[i].textureUV = { 0.25f * (face - 2), 2.0f / 3.0f };
+			else if (i % 6 == 1) vertices[i].textureUV = { 0.25f * (face - 2), 1.0f / 3.0f };
+			else if (i % 6 == 2 || i % 6 == 3) vertices[i].textureUV = { 0.25f * ((face - 2) + 1), 1.0f / 3.0f };
+			else vertices[i].textureUV = { 0.25f * ((face - 2) + 1), 2.0f / 3.0f };
+
+		}
+		if (i % 6 == 5) face++;
+	}
+	indices = new unsigned long[36];
+	for (int i = 0; i < 36; ++i)
+	{
+		indices[i] = i;
+	}
+
+	vertexCount = 36;
+	indexCount = 36;
+	InitBuffers(device, vertices, indices);
+}
+
 void MeshComponent::MakeSphere(ID3D11Device* device, float radius, int subDivisions)
 {
 	vertices = new VertexConfig[(subDivisions * subDivisions) + 1];
@@ -227,6 +340,12 @@ void MeshComponent::LoadTexture(ID3D11Device* device, const wchar_t* fileName)
 {
 	texture = new Texture();
 	texture->InitTexture(device, fileName);
+}
+
+void MeshComponent::LoadTexture(ID3D11Device* device, ID3D11ShaderResourceView* resource)
+{
+	texture = new Texture();
+	texture->InitTexture(device, resource);
 }
 
 bool MeshComponent::InitBuffers(ID3D11Device* device, VertexConfig* vertices, unsigned long* indices)

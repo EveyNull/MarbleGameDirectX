@@ -37,12 +37,12 @@ bool SkyboxShader::InitSkybox(ID3D11Device* device, HWND hWnd)
 	return true;
 }
 
-bool SkyboxShader::Render(ID3D11DeviceContext* context, int indexCount, XMMATRIX& worldMatrix,
+bool SkyboxShader::Render(ID3D11DeviceContext* context, int indexCount, const XMMATRIX& translationMatrix,
 	XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
 {
 	bool result;
 
-	result = SetShaderParams(context, worldMatrix, viewMatrix, projectionMatrix, texture);
+	result = SetShaderParams(context, translationMatrix, viewMatrix, projectionMatrix, texture);
 
 	if (!result)
 	{
@@ -179,7 +179,7 @@ bool SkyboxShader::InitializeShader(ID3D11Device* device, HWND hWnd, LPCWSTR vsF
 	return true;
 }
 
-bool SkyboxShader::SetShaderParams(ID3D11DeviceContext* context, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
+bool SkyboxShader::SetShaderParams(ID3D11DeviceContext* context, XMMATRIX translationMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -187,7 +187,7 @@ bool SkyboxShader::SetShaderParams(ID3D11DeviceContext* context, XMMATRIX worldM
 
 	unsigned int bufferNumber;
 
-	worldMatrix = XMMatrixTranspose(worldMatrix);
+	translationMatrix = XMMatrixTranspose(translationMatrix);
 	viewMatrix = XMMatrixTranspose(viewMatrix);
 	projectionMatrix = XMMatrixTranspose(projectionMatrix);
 
@@ -198,7 +198,7 @@ bool SkyboxShader::SetShaderParams(ID3D11DeviceContext* context, XMMATRIX worldM
 	}
 
 	dataPtr = (SkyboxMatrixBufferType*)mappedResource.pData;
-	dataPtr->world = worldMatrix;
+	dataPtr->translation = translationMatrix;
 	dataPtr->view = viewMatrix;
 	dataPtr->projection = projectionMatrix;
 

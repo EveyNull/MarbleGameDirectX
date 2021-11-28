@@ -1,17 +1,25 @@
 #include "Scene.h"
 #include "LevelLoader.h"
 #include "MathHelper.h"
-#include <vector>
 #include <cmath>
+#include <string>
+#include <vector>
+
 
 Scene::~Scene()
 {
 
 }
 
-Scene::Scene(HWND hWnd, ID3D11Device* device, int number)
+Scene::Scene(HWND hWnd, ID3D11Device* device, int number, AudioManager* audio, UIManager* ui)
 {
 	sceneNumber = number;
+	audioManager = audio;
+	uiManager = ui;
+
+	std::string newText = "Level " + std::to_string(sceneNumber);
+	std::wstring wide = std::wstring(newText.begin(), newText.end());
+	uiManager->UpdateText(wide.c_str());
 
 	GameObject* camera = new GameObject();
 	camera->AddCameraComponent();
@@ -21,7 +29,7 @@ Scene::Scene(HWND hWnd, ID3D11Device* device, int number)
 	GameObject* cube1 = new GameObject();
 	cube1->AddMeshComponent(hWnd, device);
 	cube1->GetMeshComponent()->MakeCube(device, 1000.0f, 1000.0f, 1000.0f);
-	cube1->SetPosition({ 0.0, 0.0, 0.0 });
+	cube1->SetPosition({ 0.0, -100.0, 0.0 });
 	cube1->GetMeshComponent()->LoadTexture(device, L"skybox.png");
 	skyBox = cube1;
 
@@ -29,20 +37,42 @@ Scene::Scene(HWND hWnd, ID3D11Device* device, int number)
 
 	playerSphere->AddMeshComponent(hWnd, device);
 	playerSphere->GetMeshComponent()->MakeSphere(device, 0.45f, 12);
-	playerSphere->GetMeshComponent()->LoadTexture(device, L"braynzar.jpg");
+	playerSphere->GetMeshComponent()->LoadTexture(device, L"earth.jpg");
 	playerSphere->SetPosition({ 0.0, 10.0, 0.0 });
 	playerSphere->AddRigidbody(1);
 	playerSphere->AddMovementComponent(mainCamera->GetCameraComponent()->GetYawPtr());
 
 	LevelLoader* levelLoader = new LevelLoader();
 
+	ID3D11ShaderResourceView* cubeTexture;
+	HRESULT result = CreateWICTextureFromFile(device, L"minecraftcube.jpg", NULL, &cubeTexture);;
+
 	levelGeometry = levelLoader->LoadLevel(sceneNumber, geometryNumber);
 
 	for (int i = 0; i < geometryNumber; ++i)
 	{
 		levelGeometry[i]->AddMeshComponent(hWnd, device);
-		levelGeometry[i]->GetMeshComponent()->MakeCube(device, 1.0f, 1.0f, 1.0f);
-		levelGeometry[i]->GetMeshComponent()->LoadTexture(device, L"minecraftcube.jpg");
+		ObjectType type = levelGeometry[i]->GetObjectType();
+		if (type == ObjectType::CUBE || type == ObjectType::GOAL)
+		{
+			levelGeometry[i]->GetMeshComponent()->MakeCube(device, 1.0f, 1.0f, 1.0f);
+		}
+		else
+		{
+			levelGeometry[i]->GetMeshComponent()->MakeSlope(device, 1.0f, 1.0f, 1.0f);
+			if ((int)type > 3)
+			{
+				levelGeometry[i]->SetRotation(XMMatrixRotationRollPitchYaw(0, (XM_PI / 180) * (90 * ((int)type - 3)), 0));
+			}
+		}
+		if (type == ObjectType::GOAL)
+		{
+			levelGeometry[i]->GetMeshComponent()->LoadTexture(device, L"minecraftcubegoal.jpg");
+		}
+		else
+		{
+			levelGeometry[i]->GetMeshComponent()->LoadTexture(device, cubeTexture);
+		}
 	}
 
 	collisionManager = new CollisionManager(levelGeometry, geometryNumber);
@@ -53,7 +83,7 @@ Scene::Scene(HWND hWnd, ID3D11Device* device, int number)
 }
 
 
-bool Scene::Update(float dt)
+int Scene::Update(float dt)
 {
 	mainCamera->Update(dt);
 	VECTOR3 collisionNormal;
@@ -64,7 +94,11 @@ bool Scene::Update(float dt)
 	VECTOR3 currentVelocity = playerSphere->GetRigidbody()->GetVelocity();
 
 	int attempts = 0;
-	while (collisionManager->CheckSphereOnMeshes(playerSphere, collisionNormal, collisionPoint))
+	GameObject** collidedObjects = nullptr;
+
+	bool changeLevel = false;
+	int numCollisions = collisionManager->CheckSphereOnMeshes(playerSphere, collisionNormal, collidedObjects);
+	while (numCollisions > 0)
 	{
 		collisionNormal = collisionNormal.normalise();
 		VECTOR3 normVel = currentVelocity.normalise();
@@ -79,16 +113,16 @@ bool Scene::Update(float dt)
 
 		newVel =
 		{
-			newVel.x * MathHelper::Lerp(1.0f, 0.4f, abs(collisionNormal.x)),
-			newVel.y * MathHelper::Lerp(1.0f, 0.4f, abs(collisionNormal.y)),
-			newVel.z * MathHelper::Lerp(1.0f, 0.4f, abs(collisionNormal.z))
+			newVel.x * MathHelper::Lerp(1.0f, 0.6f, abs(collisionNormal.x)),
+			newVel.y * MathHelper::Lerp(1.0f, 0.6f, abs(collisionNormal.y)),
+			newVel.z * MathHelper::Lerp(1.0f, 0.6f, abs(collisionNormal.z))
 		};
 
 
 		playerSphere->GetRigidbody()->SetVelocity(newVel);
 		playerSphere->SetPosition(playerSphere->GetPosition() + newVel * dt * 2);
 
-		if (collisionNormal.y == -1)
+		if (collisionNormal.y < 0.0f)
 		{
 			playerSphere->GetMoveComponent()->SetCanJump(true);
 		}
@@ -102,18 +136,54 @@ bool Scene::Update(float dt)
 				break;
 			}
 		}
+		else
+		{
+			for (int i = 0; i < numCollisions; ++i)
+			{
+				if (collidedObjects[i]->GetObjectType() == ObjectType::GOAL)
+				{
+					changeLevel = true;
+				}
+			}
+		}
+		numCollisions = collisionManager->CheckSphereOnMeshes(playerSphere, collisionNormal, collidedObjects);
 	}
 	playerSphere->SetPosition(playerSphere->GetPosition() + (playerSphere->GetRigidbody()->GetVelocity() * dt));
 
 	playerSphere->Update(dt);
 
-	mainCamera->SetPosition(playerSphere->GetPosition());
-
-	if (playerSphere->GetPosition().y < -25.0f)
+	if (falling)
 	{
-		return true;
+		respawnTimer += dt;
+		if (respawnTimer > 3.0f)
+		{
+			playerSphere->SetPosition({ 0.0f, 1.0f, 0.0f });
+			playerSphere->GetRigidbody()->SetVelocity({ 0.0f, 0.0f, 0.0f });
+			falling = false;
+			respawnTimer = 0.0f;
+			if (uiManager->UpdateLives() <= 0)
+			{
+				return 0;
+			}
+		}
 	}
-	return false;
+	else
+	{
+		mainCamera->SetPosition(playerSphere->GetPosition());
+
+		currentPosition = playerSphere->GetPosition();
+		skyBox->SetPosition({ currentPosition.x, currentPosition.y - 100.0f, currentPosition.z });
+		if (currentPosition.y < -25.0f || currentPosition.y > 10.0f)
+		{
+			falling = true;
+			audioManager->PlayWav(2, -2000.0f, 25000.0);
+		}
+		if (changeLevel)
+		{
+			return sceneNumber + 1;
+		}
+	}
+	return sceneNumber;
 }
 
 void Scene::Render(Renderer* renderer)
